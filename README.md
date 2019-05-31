@@ -1,5 +1,23 @@
 # MusicLab App
 
+
+# How to use
+
+Download or clone this repository  
+
+To retrieve data from the API you should register as a [Developer in Spotify](https://developer.spotify.com) to get an access Token.
+
+Once you have the token just put it in spotifyLogic of the file src/services/spotifylogic.js. 
+
+Go to the container folder with your terminal and use this commands: 
+>  npm i
+
+...to install the dependencies, and run the app with:
+
+>  npm start
+
+Note: if you don't use the token, you can access to the app anyway but it won't retrieve any data
+
 # Functional Description
 
 ## Use dases diagram
