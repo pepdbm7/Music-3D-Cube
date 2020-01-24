@@ -12,6 +12,7 @@ export default class Landing extends Component {
         <img
           className="landing--bg-img"
           src={require("../../assets/img/concert-min.jpg")}
+          alt="party-background"
         />
         <div className="landing--parent">
           <section className="landing--content">

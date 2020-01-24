@@ -1,35 +1,52 @@
-import React, {Component} from 'react'
-import  Cube  from '../cube/cube';
-import { Route, withRouter, Redirect } from 'react-router-dom'
-import Landing from '../landing/landing'
+import React, { Component } from "react";
+import Cube from "../cube/cube";
+import { Route, withRouter } from "react-router-dom";
+import Landing from "../landing/landing";
 
+class App extends Component {
+  state = { image: "", blur: "0px" };
 
-class App extends Component{
+  handleClickEnter = () => {
+    this.props.history.push("/cube");
+  };
 
-    state = {image:"", blur:"0px"}
+  setBackGround = image => {
+    this.setState({ image, blur: "6px" });
+  };
 
-    handleClickEnter = () => {
-     
-        this.props.history.push('/cube')
-    }
+  handleClearSearch = () => {
+    this.setState({ image: "", blur: "0px" });
+  };
 
-    setBackGround = (image) =>{
-
-        this.setState({image, blur:"6px"})
-    }
-
-    handleClearSearch = () =>{
-        this.setState({image:"",blur:"0px"})
-
-    }
-
-    render(){
-    return <div>
-            <div className="back-image" style={{"filter":`blur(${this.state.blur})`,"background-image":`url(${this.state.image})`}}></div>
-                <Route exact path="/" render={() => <Landing onClickEnter = {this.handleClickEnter}></Landing>} />
-                <Route path="/cube" render={() =><Cube onClearSearch={this.handleClearSearch} setBackGround={this.setBackGround} ></Cube> } />
-            </div>
-    }
+  render() {
+    return (
+      <div>
+        <div
+          className="back-image"
+          style={{
+            filter: `blur(${this.state.blur})`,
+            backgroundImage: `url(${this.state.image})`
+          }}
+        ></div>
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <Landing onClickEnter={this.handleClickEnter}></Landing>
+          )}
+        />
+        <Route
+          path="/cube"
+          render={() => (
+            <Cube
+              onClearSearch={this.handleClearSearch}
+              setBackGround={this.setBackGround}
+            ></Cube>
+          )}
+        />
+      </div>
+    );
+  }
 }
 
-export default withRouter(App)
+export default withRouter(App);

@@ -1,39 +1,38 @@
-import React, {Component} from 'react'
+import React, { Component } from "react";
 
+export default class SideTitle extends Component {
+  state = { messageButton: "" };
 
-export default class SideTitle extends Component{
+  componentWillReceiveProps(props) {
+    this.setState({ messageButton: props.messageButton });
+  }
 
-    state = {messageButton:""}
+  handleClickButton = () => {
+    this.props.onClickAddPlayList();
+  };
 
-     componentWillReceiveProps(props){
-       
-       
-            this.setState({messageButton:props.messageButton})
- 
-    }
-
-    handleClickButton = () =>{
-     
-        this.props.onClickAddPlayList();
-    }
-
-    
-    render = () =>{
-        return (
-            
-            <section className="panel-inf">
-                <section className="panel-inf__main-section">
-                    <section className="panel-inf__main-section__img-section">
-                        {!this.props.showAddPlayListButton && <img src={this.props.logo} />}
-                        {this.props.showAddPlayListButton && <button onClick={this.handleClickButton} className="btn btn-sm btn-warning">{this.state.messageButton}</button>}
-                    </section>
-                    <section className="panel-inf__main-section__name-section">
-                        <h1>
-                            {this.props.title}
-                        </h1>
-                    </section>
-                </section>
-            </section>
-        ) 
-    }   
+  render = () => {
+    return (
+      <section className="panel-inf">
+        <section className="panel-inf__main-section">
+          <section className="panel-inf__main-section__img-section">
+            {!this.props.showAddPlayListButton && (
+              <img src={this.props.logo} alt="logo" />
+            )}
+            {this.props.showAddPlayListButton && (
+              <button
+                onClick={this.handleClickButton}
+                className="btn btn-sm btn-warning"
+              >
+                {this.state.messageButton}
+              </button>
+            )}
+          </section>
+          <section className="panel-inf__main-section__name-section">
+            <h1>{this.props.title}</h1>
+          </section>
+        </section>
+      </section>
+    );
+  };
 }
