@@ -32,14 +32,14 @@ const spotifyLogic = {
   },
 
   getArtists(query) {
-    if (!(typeof query === "string"))
+    if (typeof query !== "string")
       throw TypeError(`${query} is not a a string`);
     if (!query.trim().length) throw Error("query cannot be empty");
 
-    const url = new URL("http://itunes.apple.com/search");
+    const url = new URL("https://itunes.apple.com/search");
     const params = { term: query, media: "music", entity: "musicArtist" };
     url.search = new URLSearchParams(params);
-    return fetch(url)
+    return fetch(url, { method: "POST" })
       .then(res => {
         console.log(res);
         res.json();
