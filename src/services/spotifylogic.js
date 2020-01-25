@@ -67,19 +67,19 @@ const spotifyLogic = {
       });
   },
 
-  getSongsbyAlbumId(id) {
-    return fetch(`https://api.spotify.com/v1/albums/${id}/tracks`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        Authorization: "Bearer " + this.token
-      }
-    })
+  getSongsbyAlbumId(albumId) {
+    if (typeof albumId !== "number")
+      throw TypeError(`${albumId} is not a a number`);
+
+    const url = new URL(
+      `http://itunes.apple.com/lookup?id=${albumId}&entity=song`
+    );
+
+    return fetch(url, { method: "GET" })
       .then(res => res.json())
-      .then(res => {
-        if (res.error) throw Error(res.error.message);
-        //res.preview_url ? res.preview_url : require("../assets/audio/default.mp3")
-        return res;
+      .then(jsondata => {
+        if (jsondata && jsondata.error) throw Error(jsondata.error.message);
+        return jsondata.results;
       });
   },
 

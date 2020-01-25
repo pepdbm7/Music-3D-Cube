@@ -114,11 +114,7 @@ export default class LeftSide extends Component {
       <section className="left">
         <div className="rotateY--180">
           <Header track={this.state.track} showPlayer={true} />
-          <SideTitle
-            logo={this.state.logo}
-            image="metallica.png"
-            title="Track List"
-          />
+          <SideTitle logo={this.state.logo} title="Track List" />
           <List
             trackFoundInPlayListMessage={this.state.trackFoundInPlayListMessage}
             playLists={this.state.playLists}

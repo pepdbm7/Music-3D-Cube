@@ -20,7 +20,6 @@ export default class List extends Component {
   }
 
   handleClick = id => {
-    console.log({ id });
     switch (this.state.type) {
       case "playlist":
         this.props.onPlayListClick(id);

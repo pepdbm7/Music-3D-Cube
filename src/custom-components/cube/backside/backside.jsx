@@ -23,14 +23,15 @@ export default class BackSide extends Component {
       .then(res => {
         let songs = [];
 
-        res.items.map(item =>
-          songs.push({
-            id: item.id,
-            name: item.name,
-            preview_url: item.preview_url,
-            image: this.state.albums.find(x => x.id === id).image
-          })
-        );
+        res.map(item => {
+          item.kind === "song" &&
+            songs.push({
+              id: item.id,
+              name: item.trackName,
+              preview_url: item.previewUrl,
+              image: item.artworkUrl100
+            });
+        });
         this.props.onTracks(songs);
         this.props.setBackGround(
           this.state.albums.find(x => x.id === id).image
@@ -44,7 +45,7 @@ export default class BackSide extends Component {
       <section className="back">
         <div className="rotateY-180">
           <Header></Header>
-          <SideTitle title="Albums list" image="metallica.png"></SideTitle>
+          <SideTitle title="Albums list"></SideTitle>
           <List
             onAlbumClick={this.handleClickOnAlbum}
             type="tracks"

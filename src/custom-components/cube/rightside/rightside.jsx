@@ -21,14 +21,15 @@ export default class RightSide extends Component {
     spotifyLogic
       .getAlbumsByArtistId(id)
       .then(res => {
-        console.log({ res });
         let albums = [];
-        res.map(item =>
-          albums.push({
-            id: item.collectionId || "",
-            name: item.collectionName || "",
-            image: item.artworkUrl100 || ""
-          })
+        res.map(
+          item =>
+            item.collectionType === "Album" &&
+            albums.push({
+              id: item.collectionId || "",
+              name: item.collectionName || "",
+              image: item.artworkUrl100 || ""
+            })
         );
 
         this.props.onAlbums(albums);
@@ -40,7 +41,7 @@ export default class RightSide extends Component {
     return (
       <section className="right">
         <Header></Header>
-        <SideTitle title="Artists List" image="metallica.png"></SideTitle>
+        <SideTitle title="Artists List"></SideTitle>
         <List
           onAlbums={this.handleAlbums}
           type="albums"

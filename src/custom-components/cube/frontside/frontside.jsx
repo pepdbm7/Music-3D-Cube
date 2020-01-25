@@ -19,7 +19,6 @@ export default class FrontSide extends Component {
               id: artist.artistId,
               name: artist.artistName,
               image: ""
-              // image: !!artist.images.length ? artist.images[0].url : ""
             })
           );
           return artists;
