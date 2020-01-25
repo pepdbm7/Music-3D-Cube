@@ -14,11 +14,12 @@ export default class FrontSide extends Component {
       spotifyLogic
         .getArtists(value)
         .then(res => {
-          res.artists.items.map(item =>
+          res.map(artist =>
             artists.push({
-              id: item.id,
-              name: item.name,
-              image: !!item.images.length ? item.images[0].url : ""
+              id: artist.artistId,
+              name: artist.artistName,
+              image: ""
+              // image: !!artist.images.length ? artist.images[0].url : ""
             })
           );
           return artists;

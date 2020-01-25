@@ -43,9 +43,7 @@ const Cube = ({ onClearSearch, setBackGround }) => {
     document.onkeydown = ev => cubeControler(ev.keyCode);
   }, []);
 
-  useEffect(() => {
-    console.log({ xdeg }, { ydeg });
-  }, [xdeg, ydeg]);
+  useEffect(() => {}, [xdeg, ydeg]);
 
   const handlerArtistFound = data => {
     setArtists(data);

@@ -36,20 +36,50 @@ const spotifyLogic = {
       throw TypeError(`${query} is not a a string`);
     if (!query.trim().length) throw Error("query cannot be empty");
 
-    const url = new URL("https://itunes.apple.com/search");
+    const url = new URL("http://itunes.apple.com/search");
     const params = { term: query, media: "music", entity: "musicArtist" };
     url.search = new URLSearchParams(params);
+
     return fetch(url, { method: "POST" })
-      .then(res => {
-        console.log(res);
-        res.json();
-      })
-      .then(res => {
-        if (res.error) throw Error(res.error.message);
-        else return res;
+      .then(res => res.json())
+      .then(jsondata => {
+        if (jsondata && jsondata.error) throw Error(jsondata.error.message);
+        return jsondata.results;
       })
       .catch(err => {
         throw Error(err.message);
+      });
+  },
+
+  getAlbumsByArtistId(artistId) {
+    if (typeof artistId !== "number")
+      throw TypeError(`${artistId} is not a a number`);
+
+    const url = new URL(
+      `http://itunes.apple.com/lookup?id=${artistId}&entity=album`
+    );
+
+    return fetch(url, { method: "GET" })
+      .then(res => res.json())
+      .then(jsondata => {
+        if (jsondata && jsondata.error) throw Error(jsondata.error.message);
+        return jsondata.results;
+      });
+  },
+
+  getSongsbyAlbumId(id) {
+    return fetch(`https://api.spotify.com/v1/albums/${id}/tracks`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        Authorization: "Bearer " + this.token
+      }
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.error) throw Error(res.error.message);
+        //res.preview_url ? res.preview_url : require("../assets/audio/default.mp3")
+        return res;
       });
   },
 
@@ -71,38 +101,6 @@ const spotifyLogic = {
       .then(res => {
         if (res.error) throw Error(res.error.message);
         else return res;
-      });
-  },
-
-  getAlbumsByArtistId(artistId) {
-    return fetch(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        Authorization: "Bearer " + this.token
-      }
-      // body: JSON.stringify({ name, surname, username, password })
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res.error) throw Error(res.error.message);
-        return res;
-      });
-  },
-
-  getSongsbyAlbumId(id) {
-    return fetch(`https://api.spotify.com/v1/albums/${id}/tracks`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        Authorization: "Bearer " + this.token
-      }
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res.error) throw Error(res.error.message);
-        //res.preview_url ? res.preview_url : require("../assets/audio/default.mp3")
-        return res;
       });
   },
 

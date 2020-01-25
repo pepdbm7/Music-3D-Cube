@@ -21,18 +21,19 @@ export default class RightSide extends Component {
     spotifyLogic
       .getAlbumsByArtistId(id)
       .then(res => {
+        console.log({ res });
         let albums = [];
-        res.items.map(item =>
+        res.map(item =>
           albums.push({
-            id: item.id,
-            name: item.name,
-            image: item.images.length ? item.images[0].url : ""
+            id: item.collectionId || "",
+            name: item.collectionName || "",
+            image: item.artworkUrl100 || ""
           })
         );
 
         this.props.onAlbums(albums);
       })
-      .catch(err => alert(err.message)); // mostrar modal
+      .catch(err => alert(`Rightside: ${err.message}`)); // mostrar modal
   };
 
   render() {

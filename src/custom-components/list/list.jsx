@@ -20,6 +20,7 @@ export default class List extends Component {
   }
 
   handleClick = id => {
+    console.log({ id });
     switch (this.state.type) {
       case "playlist":
         this.props.onPlayListClick(id);
@@ -49,8 +50,8 @@ export default class List extends Component {
     return (
       <section className="list">
         <ul className="list__container">
-          {this.state.list.map(item => (
-            <li className="list__container__item">
+          {this.state.list.map((item, i) => (
+            <li className="list__container__item" key={i}>
               <div className="list__container__item__group">
                 <div className="list__container__item__group__img">
                   <img src={item.image} alt="item"></img>
