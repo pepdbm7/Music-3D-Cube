@@ -8,7 +8,7 @@ Download or clone this repository
 
 To retrieve data from the API you should register as a [Developer in Spotify](https://developer.spotify.com) to get an access Token.
 
-Once you have the token just put it in spotifyLogic of the file src/services/spotifylogic.js.
+Once you have the token just put it in iTunesLogic of the file src/services/iTunesLogic.js.
 
 Go to the container folder with your terminal and use this commands:
 

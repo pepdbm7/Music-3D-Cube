@@ -1,17 +1,17 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import Header from "../../header/header";
 import Search from "../../search/search";
-import spotifyLogic from "../../../services/spotifylogic";
+import iTunesLogic from "../../../services/iTunesLogic";
 
-export default class FrontSide extends Component {
-  state = { message: "" };
+const FrontSide = ({ onArtistFound, onClearSearch }) => {
+  const [message, setMessage] = useState("");
 
-  handleSearch = value => {
-    this.setState({ message: "" });
+  const handleSearch = value => {
+    setMessage("");
 
     let artists = [];
     try {
-      spotifyLogic
+      iTunesLogic
         .getArtists(value)
         .then(res => {
           res.map(artist =>
@@ -24,31 +24,33 @@ export default class FrontSide extends Component {
           return artists;
         })
         .then(data => {
-          this.props.onArtistFound(data);
+          onArtistFound(data);
         })
         .catch(err => {
-          this.setState({ message: err.message });
+          console.log(err.message);
+          setMessage("Sorry, there is a problem right now. Try later");
         });
     } catch (err) {
-      this.setState({ message: err.message });
+      console.log(err.message);
+      setMessage("Sorry, there is a problem right now. Try later");
     }
   };
 
-  handleClearSearch = () => {
-    this.setState({ message: "" });
-    this.props.onClearSearch();
+  const handleClearSearch = () => {
+    setMessage("");
+    onClearSearch();
   };
 
-  render() {
-    return (
-      <section className="front">
-        <Header></Header>
-        <Search
-          message={this.state.message}
-          onClearSearch={this.handleClearSearch}
-          onSearch={this.handleSearch}
-        ></Search>
-      </section>
-    );
-  }
-}
+  return (
+    <section className="front">
+      <Header></Header>
+      <Search
+        message={message}
+        onClearSearch={handleClearSearch}
+        onSearch={handleSearch}
+      ></Search>
+    </section>
+  );
+};
+
+export default FrontSide;

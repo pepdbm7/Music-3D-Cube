@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Header from "../../header/header";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
-import spotifyLogic from "../../../services/spotifylogic";
+import iTunesLogic from "../../../services/iTunesLogic";
 
 export default class BackSide extends Component {
   state = { albums: this.props.albumlist };
@@ -18,7 +18,7 @@ export default class BackSide extends Component {
   }
 
   handleClickOnAlbum = id => {
-    spotifyLogic
+    iTunesLogic
       .getSongsbyAlbumId(id)
       .then(res => {
         let songs = [];
