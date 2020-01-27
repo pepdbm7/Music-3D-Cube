@@ -1,6 +1,6 @@
 # MusicLab App
 
-- Use Demo: [music-3d-cube.netlify.com]('https://music-3d-cube.netlify.com')
+- Use Demo: [music-3d-cube.com](https://music-3d-cube.netlify.com)
 
 # How to use
 
