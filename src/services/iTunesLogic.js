@@ -21,11 +21,20 @@ const iTunesLogic = {
     const params = { term: query, media: "music", entity: "musicArtist" };
     url.search = new URLSearchParams(params);
 
-    return fetch(url, { method: "POST" })
+    return fetch(url, { method: "GET" })
       .then(res => res.json())
       .then(jsondata => {
+        let artists = [];
         if (jsondata && jsondata.error) throw Error(jsondata.error.message);
-        return jsondata.results;
+        jsondata.results &&
+          jsondata.results.map(artist =>
+            artists.push({
+              id: artist.artistId,
+              name: artist.artistName,
+              image: ""
+            })
+          );
+        return artists;
       })
       .catch(err => {
         throw Error(err.message);
@@ -73,8 +82,22 @@ const iTunesLogic = {
     return fetch(url, { method: "GET" })
       .then(res => res.json())
       .then(jsondata => {
+        let songs = [];
         if (jsondata && jsondata.error) throw Error(jsondata.error.message);
-        return jsondata.results;
+
+        jsondata.results &&
+          jsondata.results.map(item => {
+            item.kind === "song" &&
+              songs.push({
+                id: item.id,
+                name: item.trackName || "",
+                preview_url: item.previewUrl || "",
+                image: item.artworkUrl100 || ""
+              });
+            return true;
+          });
+
+        return songs;
       });
   }
 

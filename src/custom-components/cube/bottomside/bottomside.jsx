@@ -1,108 +1,86 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import Register from "../../register/register";
 import Header from "../../header/header";
 import userService from "../../../services/userlogic";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
+import defaultSongPreview from "../../../assets/audio/default.mp3";
+import defaultSongImage from "../../../assets/img/playlist.png";
 
-export default class BottomSide extends Component {
-  state = {
-    preview: "",
-    tracks: [],
-    messageButton: "Add PlayList",
-    registerPlaylistMessage: "",
-    showFormAddPlayList: false,
-    playlists: [],
-    isLogged: false,
-    playListName: ""
+const BottomSide = ({
+  isLogged,
+  playlists,
+  OnCreatedPlayList,
+  onClickLogin
+}) => {
+  const [playListName, setPlayListName] = useState("");
+  const [songPreview, setSongPreview] = useState("");
+  const [tracks, setTracks] = useState(false);
+  const [showFormAddPlayList, setShowFormAddPlayList] = useState(false);
+  const [messageButton, setMessageButton] = useState("Add PlayList");
+  const [registerPlaylistMessage, setRegisterPlaylistMessage] = useState("");
+
+  const handleChange = ev => {
+    setPlayListName(ev.target.value);
   };
 
-  componentWillReceiveProps(props) {
-    this.setState({ isLogged: props.isLogged, playlists: props.playlists });
-  }
-
-  handleChange = ev => {
-    this.setState({ playListName: ev.target.value });
-  };
-
-  handleCreatePlayList = ev => {
-    ev.preventDefault();
-
+  const handleCreatePlayList = ev => {
+    userService.createPlayList(playListName);
     userService
-      .createPlayList(this.state.playListName)
+      .getUserPlayLists()
       .then(res => {
-        userService.getUserPlayLists().then(res => {
-          res.map(
-            el => (el.image = require("../../../assets/img/playlist.png"))
-          );
+        res.map(el => (el.image = defaultSongImage));
 
-          this.setState(
-            {
-              messageButton: "Add PlayList",
-              registerPlaylistMessage: "The playlist has been created",
-              showFormAddPlayList: false
-            },
-            () => {
-              this.props.OnCreatedPlayList();
-            }
-          );
-        });
+        setMessageButton("Add PlayList");
+        setRegisterPlaylistMessage("The playlist has been created");
+        setShowFormAddPlayList(false);
+        OnCreatedPlayList();
       })
       .catch(err => {
-        this.setState({ registerPlaylistMessage: err.message });
+        setRegisterPlaylistMessage(err.message);
       });
   };
 
-  handleAddPlaylistClick = () => {
-    if (this.state.messageButton === "Add PlayList") {
-      this.setState({ messageButton: "Close form" });
-    } else {
-      this.setState({ messageButton: "Add PlayList" });
-    }
-    this.setState({ showFormAddPlayList: !this.state.showFormAddPlayList });
-    this.setState({
-      registerPlaylistMessage: "",
-      showFormAddPlayList: this.state.showFormAddPlayList
-    });
+  const handleAddPlaylistClick = () => {
+    setMessageButton(
+      messageButton === "Add PlayList" ? "Close form" : "Add PlayList"
+    );
+    setShowFormAddPlayList(!showFormAddPlayList);
+    setRegisterPlaylistMessage("");
+    setShowFormAddPlayList(showFormAddPlayList);
   };
 
-  handleDeleteClick = id => {
+  const handleDeleteClick = id => {
     userService
       .deletePlayList(id)
       .then(res => {
-        res.playLists.map(
-          el => (el.image = require("../../../assets/img/playlist.png"))
-        );
+        res.playLists.map(el => (el.image = defaultSongImage));
 
-        //this.setState({ playlists: res.playLists })
-        this.props.OnCreatedPlayList();
+        OnCreatedPlayList();
       })
       .catch(err => {
-        alert(err.message);
+        console.log(err.message);
       });
   };
 
-  handlePlayListClick = id => {
+  const handlePlayListClick = id => {
     const session = userService.getSessionFromStorage();
     userService
       .getUserInfo(session.id, session.token)
-      .then(data => {
-        let user = userService.getUserFromData(data);
+      .then(sessionData => {
+        let user = userService.getUserFromData(sessionData);
         let Playlists = user.Playlists.find(playlist => playlist.id === id);
-        if (Playlists.tracks) {
-          this.setState({ tracks: Playlists.tracks });
-        }
+
+        Playlists.tracks && setTracks(Playlists.tracks);
       })
       .catch(err => {
-        alert(err.message);
+        console.log(err.message);
       });
   };
 
-  handleBackToPlayList = () => {
-    this.setState({ tracks: [] });
-  };
+  const handleBackToPlayList = () => setTracks([]);
 
-  handleDeleteTrack = trackId => {
+  const handleDeleteTrack = trackId => {
     const session = userService.getSessionFromStorage();
     userService
       .getUserInfo(session.id, session.token)
@@ -111,113 +89,91 @@ export default class BottomSide extends Component {
         user.deleteTrackFromPlayList(trackId);
         userService
           .updateUser(session.id, session.token, user)
-          .then(res => {
-            this.setState({
-              tracks: this.state.tracks.filter(track => track.id !== trackId)
-            });
-          })
-          .catch(err => alert(err.message));
+          .then(_ => setTracks(tracks.filter(track => track.id !== trackId)))
+          .catch(err => console.log(err.message));
       })
       .catch(err => {
-        alert(err.message);
+        console.log(err.message);
       });
   };
 
-  play = preview => {
-    if (!preview) {
-      preview = require("../../../assets/audio/default.mp3");
-    }
+  const play = preview => setSongPreview(preview || defaultSongPreview);
 
-    this.setState({ preview });
-  };
-
-  render() {
-    return (
-      <section className="bottom">
-        <div className="rotateX-180">
-          <Header
-            showPlayer={this.state.isLogged}
-            track={this.state.preview}
-          ></Header>
-          {this.state.isLogged && (
-            <SideTitle
-              messageButton={this.state.messageButton}
-              onClickAddPlayList={this.handleAddPlaylistClick}
-              showAddPlayListButton={true}
-              title="Playlists"
-            ></SideTitle>
-          )}
-          {this.state.isLogged &&
-            !this.state.showFormAddPlayList &&
-            !this.state.tracks.length && (
-              <List
-                onPlayListClick={this.handlePlayListClick}
-                onDeleteClick={this.handleDeleteClick}
-                type="playlist"
-                list={this.state.playlists}
-              ></List>
-            )}
-          {!this.state.isLogged && (
-            <Register onClickLogin={this.props.onClickLogin}></Register>
-          )}
-          {this.state.showFormAddPlayList && (
-            <form
-              className="custom-form"
-              onSubmit={ev => {
-                this.handleCreatePlayList(ev);
-              }}
-            >
-              <div className="form-group">
-                <label htmlFor="exampleInputEmail1">Add Playlist</label>
-                <input
-                  onChange={ev => this.handleChange(ev)}
-                  type="text"
-                  className="form-control"
-                  aria-describedby="emailHelp"
-                  placeholder="Add PlayList..."
-                />
-              </div>
-              <button
-                style={{ "margin-left": "0" }}
-                type="submit"
-                className="btn btn-primary"
-              >
-                Add Playlist
-              </button>
-              <h2>{this.state.registerPlaylistMessage}</h2>
-            </form>
-          )}
-          {this.state.tracks.length > 0 && (
-            <div className="">
-              <ul className="list playlist-trackList">
-                <button
-                  className="back-btn btn btn-md btn-dark"
-                  onClick={this.handleBackToPlayList}
-                >
-                  Back to PlayList
-                </button>
-                {this.state.tracks.map(track => (
-                  <li className="bottom--list--item">
-                    <div onClick={() => this.play(track.preview_url)}>
-                      {track.name}
-                    </div>
-                    <div>
-                      <button
-                        className="btn btn-sm btn-dark"
-                        onClick={() => this.handleDeleteTrack(track.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
-              <div className=""></div>
+  return (
+    <section className="bottom">
+      <div className="rotateX-180">
+        <Header showPlayer={isLogged} track={songPreview}></Header>
+        {isLogged && (
+          <SideTitle
+            messageButton={messageButton}
+            onClickAddPlayList={handleAddPlaylistClick}
+            showAddPlayListButton={true}
+            title="Playlists"
+          ></SideTitle>
+        )}
+        {isLogged && !showFormAddPlayList && !tracks.length && (
+          <List
+            onPlayListClick={handlePlayListClick}
+            onDeleteClick={handleDeleteClick}
+            type="playlist"
+            list={playlists}
+          ></List>
+        )}
+        {!isLogged && <Register onClickLogin={onClickLogin}></Register>}
+        {showFormAddPlayList && (
+          <form className="custom-form" onSubmit={handleCreatePlayList}>
+            <div className="form-group">
+              <label htmlFor="exampleInputEmail1">Add Playlist</label>
+              <input
+                onChange={handleChange}
+                type="text"
+                className="form-control"
+                aria-describedby="emailHelp"
+                placeholder="Add PlayList..."
+              />
             </div>
-          )}
-        </div>
-      </section>
-    );
-  }
-}
+            <button
+              style={{ "margin-left": "0" }}
+              type="submit"
+              className="btn btn-primary"
+            >
+              Add Playlist
+            </button>
+            <h2>{registerPlaylistMessage}</h2>
+          </form>
+        )}
+        {tracks.length > 0 && (
+          <div className="">
+            <ul className="list playlist-trackList">
+              <button
+                className="back-btn btn btn-md btn-dark"
+                onClick={handleBackToPlayList}
+              >
+                Back to PlayList
+              </button>
+              {tracks.map(track => (
+                <li className="bottom--list--item">
+                  <div onClick={() => play(track.preview_url)}>
+                    {track.name}
+                  </div>
+                  <div>
+                    <button
+                      className="btn btn-sm btn-dark"
+                      onClick={() => handleDeleteTrack(track.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className=""></div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default BottomSide;

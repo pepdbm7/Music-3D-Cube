@@ -3,52 +3,34 @@ import Header from "../../header/header";
 import Search from "../../search/search";
 import iTunesLogic from "../../../services/iTunesLogic";
 
-const FrontSide = ({ onArtistFound, onClearSearch }) => {
-  const [message, setMessage] = useState("");
+const FrontSide = ({ onArtistFound }) => {
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSearch = value => {
-    setMessage("");
-
-    let artists = [];
-    try {
-      iTunesLogic
-        .getArtists(value)
-        .then(res => {
-          res.map(artist =>
-            artists.push({
-              id: artist.artistId,
-              name: artist.artistName,
-              image: ""
-            })
-          );
-          return artists;
-        })
-        .then(data => {
-          onArtistFound(data);
-        })
-        .catch(err => {
-          console.log(err.message);
-          setMessage("Sorry, there is a problem right now. Try later");
-        });
-    } catch (err) {
-      console.log(err.message);
-      setMessage("Sorry, there is a problem right now. Try later");
-    }
+  const notFoundMessage = () => {
+    setErrorMessage("No albums found, try another artist");
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 2500);
   };
 
-  const handleClearSearch = () => {
-    setMessage("");
-    onClearSearch();
+  const handleSearch = value => {
+    iTunesLogic
+      .getArtists(value)
+      .then(data => {
+        onArtistFound(data);
+      })
+      .catch(err => {
+        console.log(err.message);
+        notFoundMessage();
+      });
   };
 
   return (
     <section className="front">
-      <Header></Header>
-      <Search
-        message={message}
-        onClearSearch={handleClearSearch}
-        onSearch={handleSearch}
-      ></Search>
+      <Header />
+      <Search onSearch={handleSearch} />
+
+      {errorMessage && <p className="error_message">{errorMessage}</p>}
     </section>
   );
 };

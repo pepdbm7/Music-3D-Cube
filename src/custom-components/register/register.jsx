@@ -1,107 +1,130 @@
-import React, {Component} from 'react'
-import userService from '../../services/userlogic'
+import React, { useState } from "react";
+import userService from "../../services/userlogic";
 
+const Register = ({ onClickLogin }) => {
+  const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [formValues, setFormValues] = useState({
+    name: "",
+    surname: "",
+    email: "",
+    username: "",
+    password: ""
+  });
 
+  const handleInputChange = e => {
+    console.log(formValues);
+    setFormValues({
+      ...formValues,
+      [e.target.name]: e.target.value
+    });
+  };
 
-export default class Register extends Component{
+  const handleSubmit = e => {
+    e.preventDefault();
 
-  
-    state = {registerMessage:"", name: '', surname: '', email: '', username: '', password: '' }
+    userService
+      .registerUser(formValues)
+      .then(() => {
+        setMessage("User registered correctly!");
+        setFormValues({
+          name: "",
+          surname: "",
+          email: "",
+          username: "",
+          password: ""
+        });
 
-    handleNameChange = event => {
-        const name = event.target.value
+        setTimeout(() => {
+          setMessage("");
+        }, 2500);
+      })
+      .catch(err => {
+        setErrorMessage(err.message);
+        setTimeout(() => {
+          setErrorMessage("");
+        }, 2500);
+      });
+  };
 
-        this.setState({ name })
-    }
+  const handleClickLogin = () => {
+    setFormValues({
+      name: "",
+      surname: "",
+      email: "",
+      username: "",
+      password: ""
+    });
+    onClickLogin();
+  };
 
-    handleSurnameChange = event => {
-        const surname = event.target.value
+  return (
+    <form className="custom-form" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <input
+          value={formValues.name}
+          type="text"
+          className="form-control"
+          placeholder="Name"
+          name="name"
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="form-group">
+        <input
+          value={formValues.surname}
+          type="text"
+          className="form-control"
+          placeholder="Surname"
+          name="surname"
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="form-group">
+        <input
+          value={formValues.email}
+          type="email"
+          className="form-control"
+          placeholder="Email"
+          name="email"
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="form-group">
+        <input
+          value={formValues.username}
+          type="text"
+          className="form-control"
+          placeholder="Username"
+          name="username"
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="form-group">
+        <input
+          value={formValues.password}
+          type="password"
+          className="form-control"
+          placeholder="Password"
+          name="password"
+          onChange={handleInputChange}
+        />
+      </div>
 
-        this.setState({ surname })
-    }
+      <button type="submit" className="btn btn-primary">
+        Register
+      </button>
+      <button
+        onClick={handleClickLogin}
+        type="button"
+        className="btn btn-primary"
+      >
+        Login
+      </button>
+      {message && <p className="success_message">{message}</p>}
+      {errorMessage && <p className="error_message">{errorMessage}</p>}
+    </form>
+  );
+};
 
-    handleEmailChange = event => {
-        const email = event.target.value
-
-        this.setState({ email })
-    }
-
-    handleUsernameChange = event => {
-        const username = event.target.value
-
-        this.setState({ username })
-    }
-
-    handlePasswordChange = event => {
-        const password = event.target.value
-
-        this.setState({ password })
-    }
-
-    handleSubmit = event => {
-        event.preventDefault()
-
-        const { name, surname, email, username, password } = this.state
-
-            try {
-                userService.registerUser(name, surname, email, username, password)
-                    .then(() => {
-                        this.setState({ registerMessage: "User registered correctly", name: '', surname: '', email: '', username: '', password: '' }, () => {
-                            
-                            setTimeout(() => {
-                                this.setState({registerMessage:""})                
-                            }, 3000)
-    
-                        })
-                    })
-                    .catch(err => this.setState({ registerMessage: err.message }))
-            } catch (err) {
-                this.setState({ registerMessage: err.message }, () =>{
-
-                    setTimeout(() => {
-                        this.setState({registerMessage:""})                
-                    }, 3000)
-                })
-            }
-        
-    }
-    
-    handleClickLogin = () =>{
-
-        this.setState({name: '', surname: '', email: '', username: '', password: '' })
-        this.props.onClickLogin();
-        
-    }
-
-    render(){
-        return (  <form className="custom-form" onSubmit={this.handleSubmit}>
-                    <div className="form-group">
-                        
-                        <input value={this.state.name} type="text"  className="form-control"  placeholder="Name" onChange={this.handleNameChange} />
-                    </div>
-                    <div className="form-group">
-                        
-                        <input value={this.state.surname} type="text" className="form-control"  placeholder="Surname" onChange={this.handleSurnameChange}  />
-                    </div>
-                    <div className="form-group">
-                       
-                        <input value={this.state.email} type="email" className="form-control"  placeholder="Email" onChange={this.handleEmailChange}  />
-                    </div>
-                   <div className="form-group">
-                      
-                        <input value={this.state.username} type="text" className="form-control"  placeholder="Username" onChange={this.handleUsernameChange}  />
-                    </div>
-                    <div className="form-group">
-                       
-                        <input value={this.state.password} type="password" className="form-control"  placeholder="Password" onChange={this.handlePasswordChange}  />
-                    </div>
-               
-                    <button type="submit" className="btn btn-primary">Register</button>
-                    <button onClick={this.handleClickLogin} type="button" className="btn btn-primary">Login</button>
-                    <h2>{this.state.registerMessage}</h2>
-                </form>
-
-           
-        );
-    }
-}
+export default Register;

@@ -1,9 +1,17 @@
-.display-block{
-    display: block;
+.display-block {
+  display: block;
 }
 
-.display-none{
-
-    display: none;
+.display-none {
+  display: none;
 }
 
+.success_message {
+  margin-top: 20px;
+  color: teal;
+}
+
+.error_message {
+  margin-top: 20px;
+  color: tomato;
+}

@@ -1,52 +1,79 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import Cube from "../cube/cube";
 import { Route, withRouter } from "react-router-dom";
 import Landing from "../landing/landing";
 
-class App extends Component {
-  state = { image: "", blur: "0px" };
+const App = ({ history }) => {
+  const [image, setImage] = useState("");
+  let [xdeg, setXdeg] = useState(0);
+  let [ydeg, setYdeg] = useState(-90);
 
-  handleClickEnter = () => {
-    this.props.history.push("/cube");
+  const handleClickButtonLanding = () => {
+    history.push("/cube");
   };
 
-  setBackGround = image => {
-    this.setState({ image, blur: "6px" });
+  const cubeControler = keyCode => {
+    console.log("antes:", xdeg);
+    switch (keyCode) {
+      case 38: //UP
+        if (ydeg > -90) setYdeg((ydeg -= 90));
+        break;
+
+      case 40: //DOWN
+        if (ydeg < 90) setYdeg((ydeg += 90));
+        break;
+
+      case 39: //RIGHT
+        setXdeg((xdeg -= 90));
+        break;
+
+      case 37: //LEFT
+        setXdeg((xdeg += 90));
+        break;
+
+      default:
+        break;
+    }
+    console.log("después:", xdeg);
   };
 
-  handleClearSearch = () => {
-    this.setState({ image: "", blur: "0px" });
+  useEffect(() => {
+    document.onkeyup = ev => cubeControler(ev.keyCode);
+  }, []);
+
+  useEffect(() => {
+    xdeg !== -270 && ydeg !== 0 ? setImage("") : setImage(image);
+  }, [image, xdeg, ydeg]);
+
+  const setBackGround = albumImg => {
+    setImage(albumImg);
   };
 
-  render() {
-    return (
-      <div>
-        <div
-          className="back-image"
-          style={{
-            filter: `blur(${this.state.blur})`,
-            backgroundImage: `url(${this.state.image})`
-          }}
-        ></div>
-        <Route
-          exact
-          path="/"
-          render={() => (
-            <Landing onClickEnter={this.handleClickEnter}></Landing>
-          )}
-        />
-        <Route
-          path="/cube"
-          render={() => (
-            <Cube
-              onClearSearch={this.handleClearSearch}
-              setBackGround={this.setBackGround}
-            ></Cube>
-          )}
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <div
+        className="back-image"
+        style={{
+          filter: image && `blur(6px)`,
+          opacity: image && 0.7,
+          backgroundImage: `url(${image})`
+        }}
+      ></div>
+      <Route
+        exact
+        path="/"
+        render={() => (
+          <Landing onClickEnter={handleClickButtonLanding}></Landing>
+        )}
+      />
+      <Route
+        path="/cube"
+        render={() => (
+          <Cube xdeg={xdeg} ydeg={ydeg} setBackGround={setBackGround}></Cube>
+        )}
+      />
+    </div>
+  );
+};
 
 export default withRouter(App);

@@ -7,21 +7,31 @@ import iTunesLogic from "../../../services/iTunesLogic";
 const RightSide = ({ artists, onAlbums }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
+  const notFoundMessage = () => {
+    setErrorMessage("No songs found, try another album");
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 2500);
+  };
+
   const handleAlbums = id => {
     iTunesLogic
       .getAlbumsByArtistId(id)
       .then(albums => {
-        onAlbums(albums);
+        albums.length < 1 ? notFoundMessage() : onAlbums(albums);
       })
-      .catch(err => setErrorMessage(err.message));
+      .catch(err => {
+        console.log(err.message);
+        notFoundMessage();
+      });
   };
 
   return (
     <section className="right">
-      <Header></Header>
-      <SideTitle title="Artists List"></SideTitle>
-      <List onAlbums={handleAlbums} type="albums" list={artists}></List>
-      {errorMessage && <p style={{ color: "tomato" }}>{errorMessage}</p>}
+      <Header />
+      <SideTitle title="Artists List" />
+      <List onAlbums={handleAlbums} type="albums" list={artists} />
+      {errorMessage && <p className="error_message">{errorMessage}</p>}
     </section>
   );
 };

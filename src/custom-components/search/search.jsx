@@ -1,15 +1,7 @@
 import React, { Component } from "react";
 
 export default class Search extends Component {
-  state = { message: "", search: "" };
-
-  componentWillReceiveProps(props) {
-    this.setState({ message: props.message }, () => {
-      setTimeout(() => {
-        this.setState({ message: "" });
-      }, 3000);
-    });
-  }
+  state = { search: "" };
 
   handleChange = ev => {
     this.setState({ search: ev.target.value });
@@ -23,7 +15,6 @@ export default class Search extends Component {
 
   handleClearSearch = () => {
     this.setState({ search: "" });
-    this.props.onClearSearch();
   };
 
   render() {
@@ -51,7 +42,6 @@ export default class Search extends Component {
         >
           Clear search
         </button>
-        <h2>{this.state.message}</h2>
       </form>
     );
   }

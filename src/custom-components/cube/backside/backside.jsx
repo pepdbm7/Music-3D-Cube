@@ -1,58 +1,47 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import Header from "../../header/header";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
 import iTunesLogic from "../../../services/iTunesLogic";
 
-export default class BackSide extends Component {
-  state = { albums: this.props.albumlist };
+const BackSide = ({ albumlist, onTracks, setBackGround }) => {
+  const [errorMessage, setErrorMessage] = useState("");
 
-  componentWillReceiveProps(props) {
-    let albums = props.albumlist.map(el => {
-      el.image = !el.image
-        ? require("../../../assets/img/playlist.png")
-        : el.image;
-      return el;
-    });
-    this.setState({ albums: albums });
-  }
-
-  handleClickOnAlbum = id => {
-    iTunesLogic
-      .getSongsbyAlbumId(id)
-      .then(res => {
-        let songs = [];
-
-        res.map(item => {
-          item.kind === "song" &&
-            songs.push({
-              id: item.id,
-              name: item.trackName,
-              preview_url: item.previewUrl,
-              image: item.artworkUrl100
-            });
-        });
-        this.props.onTracks(songs);
-        this.props.setBackGround(
-          this.state.albums.find(x => x.id === id).image
-        );
-      })
-      .catch(err => alert(err.message)); // mostrar modal
+  const notFoundMessage = () => {
+    setErrorMessage("No songs found, try another album");
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 2500);
   };
 
-  render() {
-    return (
-      <section className="back">
-        <div className="rotateY-180">
-          <Header></Header>
-          <SideTitle title="Albums list"></SideTitle>
-          <List
-            onAlbumClick={this.handleClickOnAlbum}
-            type="tracks"
-            list={this.state.albums}
-          ></List>
-        </div>
-      </section>
-    );
-  }
-}
+  const handleClickOnAlbum = id => {
+    iTunesLogic
+      .getSongsbyAlbumId(id)
+      .then(songs => {
+        return (
+          songs.length < 1 ? notFoundMessage() : onTracks(songs),
+          setBackGround(albumlist.find(x => x.id === id).image)
+        );
+      })
+      .catch(err => {
+        console.log(err.message);
+        notFoundMessage();
+      });
+  };
+
+  return (
+    <section className="back">
+      <div className="rotateY-180">
+        <Header />
+        <SideTitle title="Albums list" />
+        <List
+          onAlbumClick={handleClickOnAlbum}
+          type="tracks"
+          list={albumlist}
+        />
+        {errorMessage && <p className="error_message">{errorMessage}</p>}
+      </div>
+    </section>
+  );
+};
+export default BackSide;

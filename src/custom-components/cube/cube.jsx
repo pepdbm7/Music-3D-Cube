@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import FrontSide from "./frontside/frontside";
 import BackSide from "./backside/backside";
 import BottomSide from "./bottomside/bottomside";
@@ -7,52 +7,21 @@ import RightSide from "./rightside/rightside";
 import LeftSide from "./leftside/leftside";
 import userService from "../../services/userlogic";
 
-const Cube = ({ onClearSearch, setBackGround }) => {
-  let [xdeg, setXdeg] = useState(0);
-  let [ydeg, setYdeg] = useState(-90);
+const Cube = ({ setBackGround, xdeg, ydeg }) => {
   const [artists, setArtists] = useState([]);
   const [tracks, setTracks] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [isLogged, setIsLogged] = useState(false);
 
-  const cubeControler = keyCode => {
-    switch (keyCode) {
-      case 38: //UP
-        if (ydeg > -90) setYdeg((ydeg -= 90));
-        break;
-
-      case 40: //DOWN
-        if (ydeg < 90) setYdeg((ydeg += 90));
-        break;
-
-      case 39: //LEFT
-        setXdeg((xdeg -= 90));
-        break;
-
-      case 37: //RIGHT
-        setXdeg((xdeg += 90));
-        break;
-
-      default:
-        break;
-    }
-  };
-
-  useEffect(() => {
-    document.onkeydown = ev => cubeControler(ev.keyCode);
-  }, []);
-
-  useEffect(() => {}, [xdeg, ydeg]);
-
   const handlerArtistFound = data => {
     setArtists(data);
-    setXdeg((xdeg -= 90));
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
   };
 
   const handlerTracksFound = data => {
     setTracks(data);
-    setXdeg((xdeg -= 90));
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
   };
 
   const handleLogin = loggedIn => {
@@ -64,10 +33,9 @@ const Cube = ({ onClearSearch, setBackGround }) => {
             res.map(
               el => (el.image = require("../../assets/img/playlist.png"))
             );
-
           setPlaylists(res);
           setIsLogged(loggedIn);
-          setYdeg((ydeg += 90));
+          document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
         })
         .catch(err => err);
     }
@@ -87,20 +55,19 @@ const Cube = ({ onClearSearch, setBackGround }) => {
       .catch(err => alert(err.message));
   };
 
-  const handleRegister = () => setYdeg((ydeg += 180));
+  const handleRegister = () => {
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
+  };
 
-  const handleClickRegisterLogin = () => setYdeg((ydeg -= 180));
+  const handleClickRegisterLogin = () => {
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 40 }));
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 40 }));
+  };
 
   const handleAlbums = albums => {
     setAlbums(albums);
-    setXdeg((xdeg -= 90));
-  };
-
-  const handleClearSearch = () => {
-    setArtists([]);
-    setTracks([]);
-    setAlbums([]);
-    onClearSearch();
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
   };
 
   return (
@@ -111,10 +78,7 @@ const Cube = ({ onClearSearch, setBackGround }) => {
         }}
         className="cube"
       >
-        <FrontSide
-          onClearSearch={handleClearSearch}
-          onArtistFound={handlerArtistFound}
-        ></FrontSide>
+        <FrontSide onArtistFound={handlerArtistFound}></FrontSide>
         <BackSide
           setBackGround={setBackGround}
           onTracks={handlerTracksFound}

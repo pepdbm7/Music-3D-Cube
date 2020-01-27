@@ -1,63 +1,74 @@
-import React, {Component} from 'react'
+import React, { useState, useEffect } from "react";
 
+const Login = ({ message, onLogin, onClickRegister }) => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [formValues, setFormValues] = useState({ username: "", password: "" });
 
-export default class Login extends Component{
-    
-   
-    state = { message:"", username: '', password: '' }
-
-    componentWillReceiveProps(props){
-
-        this.setState({message:props.message}, () => {
-
-            setTimeout(() => {
-                this.setState({message:""})                
-            }, 3000)
-
-        });
+  useEffect(() => {
+    console.log(message);
+    if (message) {
+      setErrorMessage("Wrong credentials");
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 2500);
     }
-    
-    handleUsername = event => {
-        const username = event.target.value
+  }, [message]);
 
-        this.setState({ username })
-    }
+  const handleInputChange = e =>
+    setFormValues({
+      ...formValues,
+      [e.target.name]: e.target.value
+    });
 
-    handlePassword = event => {
-        const password = event.target.value
+  const handleSubmit = e => {
+    e.preventDefault();
+    onLogin({ username: formValues.username, password: formValues.password });
+  };
 
-        this.setState({ password })
-    }
+  const handleClickRegister = () => {
+    setFormValues({ username: "", password: "" });
+    onClickRegister();
+  };
 
-    handleSubmit = event => {      //envia el state (que son los value de los inputs guardados con las funciones de arriba) al padre mediante la callback handleLogin que nos ha pasado éste mediante props
-        event.preventDefault();
+  return (
+    <form className="custom-form" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <label htmlFor="username">Username</label>
+        <input
+          value={formValues.username}
+          type="text"
+          name="username"
+          className="form-control"
+          aria-describedby="emailHelp"
+          placeholder="Username"
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="password">Password</label>
+        <input
+          value={formValues.password}
+          type="password"
+          name="password"
+          className="form-control"
+          aria-describedby="emailHelp"
+          placeholder="Password"
+          onChange={handleInputChange}
+        />
+      </div>
+      <button type="submit" className="btn btn-primary">
+        Login
+      </button>
+      <button
+        onClick={handleClickRegister}
+        type="button"
+        className="btn btn-primary"
+      >
+        Register
+      </button>
+      {errorMessage && <p className="error_message">{errorMessage}</p>}
+    </form>
+  );
+};
 
-        this.props.onLogin(this.state)
-    }
-    
-    handleClickRegister = () =>{
-
-        this.setState({username:"", password:""})
-        this.props.onClickRegister()
-    }
-
-    render(){
-        return (
-                          
-                <form className="custom-form" onSubmit={this.handleSubmit}>
-                    <div className="form-group">
-                    <label htmlFor="exampleInputEmail1">Username</label>
-                    <input value={this.state.username} type="text" className="form-control" aria-describedby="emailHelp" placeholder="Username" onChange= {this.handleUsername} />
-                    </div>
-                    <div className="form-group">
-                    <label htmlFor="exampleInputEmail1">Password</label>
-                    <input value={this.state.password} type="password" className="form-control" aria-describedby="emailHelp" placeholder="Password" onChange={this.handlePassword} />
-                    </div>
-                    <button type="submit" className="btn btn-primary">Login</button>
-                    <button onClick={this.handleClickRegister} type="button" className="btn btn-primary">Register</button>
-                    <h2>{this.state.message}</h2>
-                </form>
-           
-        );
-    }
-}
+export default Login;

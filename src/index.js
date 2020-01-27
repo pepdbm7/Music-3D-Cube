@@ -5,12 +5,12 @@ import "bootstrap/dist/js/bootstrap.js";
 import "./sass/styles.scss";
 import App from "./custom-components/app/app";
 import * as serviceWorker from "./serviceWorker";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 
 ReactDOM.render(
-  <HashRouter>
+  <Router>
     <App />
-  </HashRouter>,
+  </Router>,
   document.getElementById("root")
 );
 
