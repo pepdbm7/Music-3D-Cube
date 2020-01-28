@@ -1,19 +1,21 @@
-import React from "react";
-import DefaultArtistImage from "../../assets/img/playlist.png";
+import React, { useEffect } from "react";
+import defaultArtistImage from "../../assets/img/playlist.png";
+import defaultSong from "../../assets/audio/default.mp3";
 
 const List = ({
   isLogged,
   list,
   playLists,
-  trackFoundInPlayListMessage,
   type,
   onPlayListClick,
   onAlbumClick,
   onAlbums,
   onPlayTrack,
   onDeleteClick,
-  onClickAddTrackToList
+  addTrackToPlaylist
 }) => {
+  useEffect(() => console.log("songs received from list: ", list), [list]);
+
   const handleClick = id => {
     switch (type) {
       case "playlist":
@@ -26,12 +28,8 @@ const List = ({
         onAlbums(id);
         break;
       case "songs":
-        let track = list.find(el => {
-          return el.id === id;
-        });
-        let preview_url = !track.preview_url
-          ? require("../../assets/audio/default.mp3")
-          : track.preview_url;
+        let clickedTrack = list.find(el => el.id === id);
+        let preview_url = clickedTrack.preview_url || defaultSong;
         onPlayTrack(preview_url);
         break;
 
@@ -43,59 +41,68 @@ const List = ({
   return (
     <section className="list">
       <ul className="list__container">
-        {list.map((item, i) => (
-          <li className="list__container__item" key={i}>
-            <div className="list__container__item__group">
-              <div className="list__container__item__group__img">
-                <img src={item.image || DefaultArtistImage} alt="itemPic"></img>
-              </div>
-              <div
-                onClick={() => handleClick(item.id)}
-                className="list__container__item__group__name"
-              >
-                {item.name}
-              </div>
-              {type === "playlist" && (
-                <div>
-                  <button
-                    onClick={() => onDeleteClick(item.id)}
-                    className="list__container__item__group__button-delete btn btn-sm btn-dark"
+        {list.length
+          ? list.map((item, i) => (
+              <li className="list__container__item" key={i}>
+                <div className="list__container__item__group">
+                  <div className="list__container__item__group__img">
+                    <img
+                      src={item.image || defaultArtistImage}
+                      alt="itemPic"
+                    ></img>
+                  </div>
+                  <div
+                    onClick={() => handleClick(item.id)}
+                    className="list__container__item__group__name"
                   >
-                    Delete
-                  </button>
+                    {item.name}
+                  </div>
+                  {type === "playlist" && (
+                    <div>
+                      <button
+                        onClick={() => onDeleteClick(item.id)}
+                        className="list__container__item__group__button-delete btn btn-sm btn-dark"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                  {type === "songs" && isLogged && (
+                    <div>
+                      <button
+                        id={`button-${item.id}`}
+                        onClick={() => addTrackToPlaylist(item.id)}
+                        className="list__container__item__group__button-delete btn btn-sm btn-dark"
+                      >
+                        Add To PlayList
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-              {type === "songs" && isLogged && (
-                <div>
-                  <button
-                    id={`button-${item.id}`}
-                    onClick={() => onClickAddTrackToList(item.id)}
-                    className="list__container__item__group__button-delete btn btn-sm btn-dark"
+                {type === "songs" && (
+                  <div
+                    id={item.id}
+                    className="display-none list__container__item__playlists"
                   >
-                    Add To PlayList
-                  </button>
-                </div>
-              )}
-            </div>
-            {type === "songs" && (
-              <div
-                id={item.id}
-                className="display-none list__container__item__playlists"
-              >
-                <ul className="list__container__item__playlists-list">
-                  {playLists.map(playlist => (
-                    <li onClick={() => onPlayListClick(item.id, playlist.id)}>
-                      {playlist.name}
-                    </li>
-                  ))}
-                </ul>
-                <div className="list__container__item__playlists-message">
-                  {trackFoundInPlayListMessage}
-                </div>
-              </div>
-            )}
-          </li>
-        ))}
+                    <ul className="list__container__item__playlists-list">
+                      {playLists.length
+                        ? playLists.map(playlist => (
+                            <li
+                              onClick={() =>
+                                onPlayListClick(item.id, playlist.id)
+                              }
+                            >
+                              {playlist.name}
+                            </li>
+                          ))
+                        : null}
+                    </ul>
+                    <div className="list__container__item__playlists-message"></div>
+                  </div>
+                )}
+              </li>
+            ))
+          : null}
       </ul>
     </section>
   );

@@ -1,32 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Header from "../../header/header";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
 import iTunesLogic from "../../../services/iTunesLogic";
+import ErrorMessage from "../../errormessage";
+import { StoreContext } from "../../../store";
 
-const BackSide = ({ albumlist, onTracks, setBackGround }) => {
+const BackSide = ({ albumlist, albumTracks }) => {
   const [errorMessage, setErrorMessage] = useState("");
+  const clearMessage = () => setErrorMessage("");
 
-  const notFoundMessage = () => {
-    setErrorMessage("No songs found, try another album");
-    setTimeout(() => {
-      setErrorMessage("");
-    }, 2500);
-  };
+  const {
+    albumImage: [albumImage, setAlbumImage]
+  } = useContext(StoreContext);
 
-  const handleClickOnAlbum = id => {
-    iTunesLogic
-      .getSongsbyAlbumId(id)
-      .then(songs => {
-        return (
-          songs.length < 1 ? notFoundMessage() : onTracks(songs),
-          setBackGround(albumlist.find(x => x.id === id).image)
-        );
-      })
-      .catch(err => {
-        console.log(err.message);
-        notFoundMessage();
-      });
+  const handleClickOnAlbum = albumId => {
+    try {
+      iTunesLogic
+        .getSongsbyAlbumId(albumId)
+        .then(songs => {
+          const albumImage = albumlist.find(x => x.id === albumId).image;
+          setAlbumImage(albumImage);
+          return { songs, albumImage };
+        })
+        .then(({ songs, albumImage }) =>
+          iTunesLogic.setSongsImage(songs, albumImage)
+        )
+        .then(songsWithImage => albumTracks(songsWithImage))
+        .catch(err => setErrorMessage(err.message));
+    } catch (err) {
+      setErrorMessage(err.message);
+    }
   };
 
   return (
@@ -39,7 +43,7 @@ const BackSide = ({ albumlist, onTracks, setBackGround }) => {
           type="tracks"
           list={albumlist}
         />
-        {errorMessage && <p className="error_message">{errorMessage}</p>}
+        <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
       </div>
     </section>
   );

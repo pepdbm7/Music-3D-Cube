@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from "react";
+import ErrorMessage from "../errormessage";
 
-const Login = ({ message, onLogin, onClickRegister }) => {
+const Login = ({ message, onLogin }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [formValues, setFormValues] = useState({ username: "", password: "" });
+  const clearMessage = () => setErrorMessage("");
 
   useEffect(() => {
-    console.log(message);
-    if (message) {
-      setErrorMessage("Wrong credentials");
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 2500);
-    }
+    message && setErrorMessage("Wrong credentials");
   }, [message]);
 
   const handleInputChange = e =>
@@ -27,7 +23,8 @@ const Login = ({ message, onLogin, onClickRegister }) => {
 
   const handleClickRegister = () => {
     setFormValues({ username: "", password: "" });
-    onClickRegister();
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
   };
 
   return (
@@ -66,7 +63,7 @@ const Login = ({ message, onLogin, onClickRegister }) => {
       >
         Register
       </button>
-      {errorMessage && <p className="error_message">{errorMessage}</p>}
+      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
     </form>
   );
 };

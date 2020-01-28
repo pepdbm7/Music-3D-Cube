@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import userService from "../../services/userlogic";
+import ErrorMessage from "../errormessage";
 
-const Register = ({ onClickLogin }) => {
+const Register = () => {
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const clearMessage = () => setErrorMessage("");
+
   const [formValues, setFormValues] = useState({
     name: "",
     surname: "",
@@ -13,7 +16,6 @@ const Register = ({ onClickLogin }) => {
   });
 
   const handleInputChange = e => {
-    console.log(formValues);
     setFormValues({
       ...formValues,
       [e.target.name]: e.target.value
@@ -23,28 +25,27 @@ const Register = ({ onClickLogin }) => {
   const handleSubmit = e => {
     e.preventDefault();
 
-    userService
-      .registerUser(formValues)
-      .then(() => {
-        setMessage("User registered correctly!");
-        setFormValues({
-          name: "",
-          surname: "",
-          email: "",
-          username: "",
-          password: ""
-        });
+    try {
+      userService
+        .registerUser(formValues)
+        .then(() => {
+          setMessage("User registered correctly!");
+          setFormValues({
+            name: "",
+            surname: "",
+            email: "",
+            username: "",
+            password: ""
+          });
 
-        setTimeout(() => {
-          setMessage("");
-        }, 2500);
-      })
-      .catch(err => {
-        setErrorMessage(err.message);
-        setTimeout(() => {
-          setErrorMessage("");
-        }, 2500);
-      });
+          setTimeout(() => {
+            setMessage("");
+          }, 1500);
+        })
+        .catch(err => setErrorMessage(err.message));
+    } catch (err) {
+      setErrorMessage(err.message);
+    }
   };
 
   const handleClickLogin = () => {
@@ -55,7 +56,8 @@ const Register = ({ onClickLogin }) => {
       username: "",
       password: ""
     });
-    onClickLogin();
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 40 }));
+    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 40 }));
   };
 
   return (
@@ -122,7 +124,7 @@ const Register = ({ onClickLogin }) => {
         Login
       </button>
       {message && <p className="success_message">{message}</p>}
-      {errorMessage && <p className="error_message">{errorMessage}</p>}
+      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
     </form>
   );
 };

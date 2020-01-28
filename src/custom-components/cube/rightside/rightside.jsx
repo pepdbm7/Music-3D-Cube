@@ -3,27 +3,25 @@ import Header from "../../header/header";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
 import iTunesLogic from "../../../services/iTunesLogic";
+import ErrorMessage from "../../errormessage";
 
 const RightSide = ({ artists, onAlbums }) => {
   const [errorMessage, setErrorMessage] = useState("");
-
-  const notFoundMessage = () => {
-    setErrorMessage("No songs found, try another album");
-    setTimeout(() => {
-      setErrorMessage("");
-    }, 2500);
-  };
+  const clearMessage = () => setErrorMessage("");
 
   const handleAlbums = id => {
-    iTunesLogic
-      .getAlbumsByArtistId(id)
-      .then(albums => {
-        albums.length < 1 ? notFoundMessage() : onAlbums(albums);
-      })
-      .catch(err => {
-        console.log(err.message);
-        notFoundMessage();
-      });
+    try {
+      iTunesLogic
+        .getAlbumsByArtistId(id)
+        .then(albums => onAlbums(albums))
+        .catch(err => {
+          console.log(err.message);
+          setErrorMessage(err.message);
+        });
+    } catch (err) {
+      console.log(err.message);
+      setErrorMessage(err.message);
+    }
   };
 
   return (
@@ -31,7 +29,7 @@ const RightSide = ({ artists, onAlbums }) => {
       <Header />
       <SideTitle title="Artists List" />
       <List onAlbums={handleAlbums} type="albums" list={artists} />
-      {errorMessage && <p className="error_message">{errorMessage}</p>}
+      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
     </section>
   );
 };

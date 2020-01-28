@@ -58,12 +58,13 @@ const userService = {
       },
       body: JSON.stringify({ username, password })
     })
-      .then(res => res.json())
-      .then(res => {
-        if (res.error) throw Error(res.error);
+      .then(user => user.json())
+      .then(({ data, error }) => {
+        if (error) throw Error(error);
 
-        return { id: res.data.id, token: res.data.token };
-      });
+        return { id: data.id, token: data.token };
+      })
+      .then(data => sessionStorage.setItem("user", JSON.stringify(data)));
   },
 
   getUserInfo(id, token) {
@@ -79,10 +80,10 @@ const userService = {
       }
     })
       .then(res => res.json())
-      .then(res => {
-        if (res.status === "OK") {
-          return res.data;
-        } else throw Error(res.error);
+      .then(({ status, data, error }) => {
+        if (status === "OK") {
+          return data;
+        } else throw Error(error);
       });
   },
 
@@ -96,10 +97,7 @@ const userService = {
       body: JSON.stringify(user)
     })
       .then(res => res.json())
-      .then(res => {
-        if (res.status === "OK") return true;
-        else throw Error(res.error);
-      });
+      .then(res => res.status === "OK" && true);
   },
 
   createPlayList(value) {
@@ -140,8 +138,9 @@ const userService = {
         return res;
       })
       .then(data => {
-        return this.updateUser(data.id, data.token, data.userInf).then(
-          res => data.userInf.playLists
+        return (
+          this.updateUser(data.id, data.token, data.userInf) &&
+          data.userInf.playLists
         );
       });
   },
@@ -159,9 +158,7 @@ const userService = {
         );
         playList.tracks.push(track);
         const session = this.getSessionFromStorage();
-        return this.updateUser(session.id, session.token, user).then(
-          res => res
-        );
+        return this.updateUser(session.id, session.token, user);
       });
   },
 
@@ -177,9 +174,9 @@ const userService = {
     const session = JSON.parse(sessionStorage.getItem("user"));
     if (!session) throw Error("The session of the user has fisnihed");
 
-    return this.getUserInfo(session.id, session.token).then(res => {
-      return res.playLists;
-    });
+    return this.getUserInfo(session.id, session.token).then(
+      res => res.playLists
+    );
   },
 
   deletePlayList(playlistId) {

@@ -1,142 +1,114 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import Header from "../../header/header";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
 import userService from "../../../services/userlogic";
-import $ from "jquery";
-import defaultPlaylistImage from "../../../assets/img/playlist.png"
+import ErrorMessage from "../../errormessage";
+import { StoreContext } from "../../../store";
 
-const LeftSide = ({isLogged, track, tracks}) => {
-  state = {
-    playLists: [],
-    isLogged: false,
-    logo: "",
-    tracks: [],
-    track: "",
-    trackFoundInPlayListMessage: ""
-  };
+const LeftSide = ({ tracks }) => {
+  const [currentTrackPlaying, setCurrentTrackPlaying] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  componentWillReceiveProps(props) {
-    let tracks = props.tracks.map(el => {
-      el.image = !el.image
-        ? defaultPlaylistImage
-        : el.image;
-      return el;
-    });
-    let back = !tracks.length ? "" : tracks[0].image;
-    setState({ isLogged: props.isLogged, logo: back, tracks: tracks });
-  }
+  const clearMessage = () => setErrorMessage("");
 
-  useEffect(() => {
-    
-  }, [])
+  const {
+    playlists: [playlists, setPlaylists],
+    isLoggedIn: [isLoggedIn],
+    albumImage: [albumImage]
+  } = useContext(StoreContext);
 
-  useEffect(() => {
-    console.log(props.track)
-  }, [props.track])
-
-  const handlePlayTrack = previewUrl => {
-    setState({ track: previewUrl });
-  };
+  const handlePlayTrack = previewUrl => setCurrentTrackPlaying(previewUrl);
 
   const getUserInfo = () => {
     const session = userService.getSessionFromStorage();
-    return userService
-      .getUserInfo(session.id, session.token)
-      .then(data => {
-        return data;
-      })
-      .catch(err => {
-        throw Error(err.message);
-      });
+    try {
+      userService
+        .getUserInfo(session.id, session.token)
+        .then(data => {
+          return data;
+        })
+        .catch(err => {
+          throw Error(err.message);
+        });
+    } catch (err) {
+      setErrorMessage(err.message);
+    }
   };
 
   const handlePlaylistClick = (trackId, playListId) => {
     getUserInfo()
-      .then(data => {
-        if (userService.existsTrackInPlayList(data, trackId)) {
-          setState(
-            {
-              trackFoundInPlayListMessage:
-                "This track is already in the playList"
-            },
-            () => {
-              setTimeout(() => {
-                setState({
-                  trackFoundInPlayListMessage: "",
-                  hiddePlayListDiv: "playListId"
-                });
-              }, 2000);
-            }
-          );
-        } else return data;
+      .then(userData => {
+        const existsTrackInList = userService.existsTrackInPlayList(
+          userData,
+          trackId
+        );
+        return existsTrackInList
+          ? setErrorMessage("This track is already in the playList")
+          : userData;
       })
-      .then(data => {
-        if (data) {
-          let user = userService.getUserFromData(data);
+      .then(userData => {
+        if (userData) {
+          let user = userService.getUserFromData(userData);
           return userService.addTrackToPlayList(trackId, playListId, user);
-        } else return data;
+        }
       })
-      .then(res => {
-        if (res)
-          setState(
-            {
-              trackFoundInPlayListMessage:
-                "This track has been added to the playList"
-            },
-            () => {
-              setTimeout(() => {
-                setState({ trackFoundInPlayListMessage: "" });
-              }, 2000);
-            }
-          );
+      .then(
+        added =>
+          added === true &&
+          setErrorMessage("Successfully added to the playList!")
+      )
+      .catch(err => setErrorMessage(err.message));
+  };
+
+  const addTrackToPlaylist = trackId => {
+    const text = document.getElementById("#button-" + trackId).text();
+
+    if (text === "Close") {
+      document.getElementById(`#${trackId}`).addClass("display-none");
+      document.getElementById("#button-" + trackId).text("Add To PlayList");
+      return true;
+    }
+    return getUserInfo()
+      .then(userData => {
+        if (userData.playLists) {
+          setPlaylists(userData.playLists);
+          document.getElementById(`#${trackId}`).removeClass("display-none");
+          document.getElementById("#button-" + trackId).text("Close");
+          return true;
+        }
+
+        return setErrorMessage("You don't have any playList yet");
       })
       .catch(err => alert(err.message));
   };
 
-  const handleAddTrackToListClickButton = trackId => {
-    //$("button[id^='button-']").
+  return (
+    <section className="left">
+      <div className="rotateY--180">
+        <div
+          className="background__image"
+          style={{
+            opacity: albumImage && 0.2,
+            backgroundImage: albumImage && `url(${albumImage})`
+          }}
+        />
+        <Header track={currentTrackPlaying} showPlayer={true} />
+        <SideTitle title="Track List" />
+        <List
+          playLists={playlists}
+          addTrackToPlaylist={addTrackToPlaylist}
+          onPlayListClick={handlePlaylistClick}
+          isLogged={isLoggedIn}
+          onPlayTrack={handlePlayTrack}
+          showLink={true}
+          type="songs"
+          list={tracks}
+        />
+        <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
+      </div>
+    </section>
+  );
+};
 
-    const text = $("#button-" + trackId).text();
-
-    if (text === "Close") {
-      $(`#${trackId}`).addClass("display-none");
-      $("#button-" + trackId).text("Add To PlayList");
-    } else {
-      getUserInfo()
-        .then(data => {
-          if (data.playLists.length)
-            setState({ playLists: data.playLists }, () => {
-              $(`#${trackId}`).removeClass("display-none");
-              $("#button-" + trackId).text("Close");
-            });
-          else {
-            alert("The user has not any playList");
-          }
-        })
-        .catch(err => alert(err.message));
-    }
-  };
-
-    return (
-      <section className="left">
-        <div className="rotateY--180">
-          <Header track={state.track} showPlayer={true} />
-          <SideTitle logo={state.logo} title="Track List" />
-          <List
-            trackFoundInPlayListMessage={state.trackFoundInPlayListMessage}
-            playLists={state.playLists}
-            onClickAddTrackToList={handleAddTrackToListClickButton}
-            onPlayListClick={handlePlaylistClick}
-            isLogged={state.isLogged}
-            onPlayTrack={handlePlayTrack}
-            showLink={true}
-            type="songs"
-            list={state.tracks}
-          />
-        </div>
-      </section>
-    );
-}
-
-export default LeftSide
+export default LeftSide;

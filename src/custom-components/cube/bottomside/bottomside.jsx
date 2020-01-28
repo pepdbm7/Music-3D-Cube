@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Register from "../../register/register";
 import Header from "../../header/header";
 import userService from "../../../services/userlogic";
@@ -7,12 +7,9 @@ import List from "../../list/list";
 import defaultSongPreview from "../../../assets/audio/default.mp3";
 import defaultSongImage from "../../../assets/img/playlist.png";
 
-const BottomSide = ({
-  isLogged,
-  playlists,
-  OnCreatedPlayList,
-  onClickLogin
-}) => {
+import { StoreContext } from "../../../store";
+
+const BottomSide = () => {
   const [playListName, setPlayListName] = useState("");
   const [songPreview, setSongPreview] = useState("");
   const [tracks, setTracks] = useState(false);
@@ -20,11 +17,28 @@ const BottomSide = ({
   const [messageButton, setMessageButton] = useState("Add PlayList");
   const [registerPlaylistMessage, setRegisterPlaylistMessage] = useState("");
 
+  const {
+    playlists: [playlists, setPlaylists],
+    isLoggedIn: [isLoggedIn]
+  } = useContext(StoreContext);
+
   const handleChange = ev => {
     setPlayListName(ev.target.value);
   };
 
-  const handleCreatePlayList = ev => {
+  const refreshPlayLists = () => {
+    userService
+      .getUserPlayLists()
+      .then(playlists => {
+        if (playlists.length) {
+          playlists.map(el => (el.image = defaultSongImage));
+        }
+        setPlaylists(playlists);
+      })
+      .catch(err => alert(err.message));
+  };
+
+  const handleCreatePlayList = () => {
     userService.createPlayList(playListName);
     userService
       .getUserPlayLists()
@@ -34,7 +48,7 @@ const BottomSide = ({
         setMessageButton("Add PlayList");
         setRegisterPlaylistMessage("The playlist has been created");
         setShowFormAddPlayList(false);
-        OnCreatedPlayList();
+        refreshPlayLists();
       })
       .catch(err => {
         setRegisterPlaylistMessage(err.message);
@@ -56,7 +70,7 @@ const BottomSide = ({
       .then(res => {
         res.playLists.map(el => (el.image = defaultSongImage));
 
-        OnCreatedPlayList();
+        refreshPlayLists();
       })
       .catch(err => {
         console.log(err.message);
@@ -102,24 +116,25 @@ const BottomSide = ({
   return (
     <section className="bottom">
       <div className="rotateX-180">
-        <Header showPlayer={isLogged} track={songPreview}></Header>
-        {isLogged && (
+        {!isLoggedIn ? <Register /> : null}
+        <Header showPlayer={isLoggedIn} track={songPreview}></Header>
+        {isLoggedIn && (
           <SideTitle
             messageButton={messageButton}
             onClickAddPlayList={handleAddPlaylistClick}
             showAddPlayListButton={true}
             title="Playlists"
-          ></SideTitle>
+          />
         )}
-        {isLogged && !showFormAddPlayList && !tracks.length && (
+        {isLoggedIn && !showFormAddPlayList && !tracks.length && (
           <List
             onPlayListClick={handlePlayListClick}
             onDeleteClick={handleDeleteClick}
             type="playlist"
             list={playlists}
-          ></List>
+          />
         )}
-        {!isLogged && <Register onClickLogin={onClickLogin}></Register>}
+
         {showFormAddPlayList && (
           <form className="custom-form" onSubmit={handleCreatePlayList}>
             <div className="form-group">

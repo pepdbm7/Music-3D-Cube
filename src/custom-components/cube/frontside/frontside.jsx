@@ -2,35 +2,34 @@ import React, { useState } from "react";
 import Header from "../../header/header";
 import Search from "../../search/search";
 import iTunesLogic from "../../../services/iTunesLogic";
+import ErrorMessage from "../../errormessage";
 
-const FrontSide = ({ onArtistFound }) => {
+const FrontSide = ({ foundArtists }) => {
   const [errorMessage, setErrorMessage] = useState("");
-
-  const notFoundMessage = () => {
-    setErrorMessage("No albums found, try another artist");
-    setTimeout(() => {
-      setErrorMessage("");
-    }, 2500);
-  };
+  const clearMessage = () => setErrorMessage("");
 
   const handleSearch = value => {
-    iTunesLogic
-      .getArtists(value)
-      .then(data => {
-        onArtistFound(data);
-      })
-      .catch(err => {
-        console.log(err.message);
-        notFoundMessage();
-      });
+    try {
+      iTunesLogic
+        .getArtists(value)
+        .then(artists => {
+          foundArtists(artists);
+        })
+        .catch(err => {
+          //captured errors after fetching:
+          setErrorMessage(err.message);
+        });
+    } catch (err) {
+      //captured typerrors, previous to the fetch:
+      setErrorMessage(err.message);
+    }
   };
 
   return (
     <section className="front">
       <Header />
       <Search onSearch={handleSearch} />
-
-      {errorMessage && <p className="error_message">{errorMessage}</p>}
+      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
     </section>
   );
 };

@@ -5,12 +5,15 @@ import "bootstrap/dist/js/bootstrap.js";
 import "./sass/styles.scss";
 import App from "./custom-components/app/app";
 import * as serviceWorker from "./serviceWorker";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
+import StoreProvider from "./store";
 
 ReactDOM.render(
-  <Router>
-    <App />
-  </Router>,
+  <StoreProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StoreProvider>,
   document.getElementById("root")
 );
 
