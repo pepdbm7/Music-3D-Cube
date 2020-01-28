@@ -5,7 +5,6 @@ import BottomSide from "./bottomside/bottomside";
 import TopSide from "./topside/topside";
 import RightSide from "./rightside/rightside";
 import LeftSide from "./leftside/leftside";
-import userService from "../../services/userlogic";
 import { StoreContext } from "../../store";
 
 const Cube = ({ xdeg, ydeg }) => {

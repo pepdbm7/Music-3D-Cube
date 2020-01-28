@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import defaultArtistImage from "../../assets/img/playlist.png";
 import defaultSong from "../../assets/audio/default.mp3";
 
@@ -14,8 +14,6 @@ const List = ({
   onDeleteClick,
   addTrackToPlaylist
 }) => {
-  useEffect(() => console.log("songs received from list: ", list), [list]);
-
   const handleClick = id => {
     switch (type) {
       case "playlist":

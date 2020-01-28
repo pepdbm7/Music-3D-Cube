@@ -11,7 +11,7 @@ const BackSide = ({ albumlist, albumTracks }) => {
   const clearMessage = () => setErrorMessage("");
 
   const {
-    albumImage: [albumImage, setAlbumImage]
+    albumImage: [, setAlbumImage]
   } = useContext(StoreContext);
 
   const handleClickOnAlbum = albumId => {

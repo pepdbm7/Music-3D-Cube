@@ -6,21 +6,36 @@
 
 Download or clone this repository
 
-To retrieve data from the API you should register as a [Developer in Spotify](https://developer.spotify.com) to get an access Token.
-
-Once you have the token just put it in iTunesLogic of the file src/services/iTunesLogic.js.
-
 Go to the container folder with your terminal and use this commands:
 
 > npm i
 
-...to install the dependencies, and run the app with:
+to install the dependencies,
 
 > npm start
 
-Note: if you don't use the token, you can access to the app anyway but it won't retrieve any data
+to run the app with
 
 # Functional Description
+
+- Has two separated logics: user management and music management,
+
+- Uses **Heroku** for a database of users, which API I created with this endpoints:
+  - register user
+  - login
+  - retrieve user
+  - update user
+  - add playlist
+  - add song to playlist
+  - remove song from playlist
+  - remove playlist
+  
+- Uses **iTunes API** for the music management:
+  - show artist
+  - show albums
+  - show songs
+  - play songs
+
 
 ## Use dases diagram
 
