@@ -1,7 +1,9 @@
-.display-block {
-  display: block;
-}
+//mediaqueries:
+$breakpoint-desktop: 1040px;
+$breakpoint-tablet: 768px;
+$breakpoint-phone: 350px;
 
+//added and/or removed classes with js:
 .display-none {
   display: none;
 }
@@ -14,4 +16,29 @@
 .error_message {
   margin-top: 20px;
   color: tomato;
+}
+
+//elements present all over the app:
+button {
+  border-radius: 5px;
+  border: 1px solid rgb(255, 193, 7);
+  padding: 4px 8px;
+  background: black;
+  font-weight: 600;
+  color: rgb(255, 193, 7);
+  box-shadow: 0 0 5px gray;
+  transition: all 0.5s ease;
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: rgb(39, 30, 5);
+    color: white;
+    outline: 0;
+    transform: translate3d(0, 1px, 0);
+    border: 1px solid white;
+  }
+
+  &:last-of-type {
+    margin-left: 1em;
+  }
 }

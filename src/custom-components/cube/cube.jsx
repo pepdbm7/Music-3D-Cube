@@ -1,50 +1,51 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect } from "react";
+//components:
 import FrontSide from "./frontside/frontside";
 import BackSide from "./backside/backside";
 import BottomSide from "./bottomside/bottomside";
 import TopSide from "./topside/topside";
 import RightSide from "./rightside/rightside";
 import LeftSide from "./leftside/leftside";
-import { StoreContext } from "../../store";
+
+//utils:
+import useWindowSize from "../../utils/useWindowSize";
 
 const Cube = ({ xdeg, ydeg }) => {
-  const [artists, setArtists] = useState([]);
-  const [tracks, setTracks] = useState([]);
-  const [albums, setAlbums] = useState([]);
+  const [cubeSize, setCubeSize] = useState(0);
 
-  const {
-    playlists: [playlists]
-  } = useContext(StoreContext);
+  const windowSize = useWindowSize();
 
-  const handlerFoundArtists = artists => {
-    setArtists(artists);
-    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
-  };
+  useEffect(() => {
+    setTimeout(() => {
+      windowSize.width > 1040 && setCubeSize(1);
+    }, 500);
+  }, []);
 
-  const handlerTracksFound = tracks => {
-    setTracks(tracks);
-    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
-  };
-
-  const handleAlbums = albums => {
-    setAlbums(albums);
-    document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
-  };
+  useEffect(() => {
+    if (windowSize.width > 1040) setCubeSize(1);
+    else {
+      if (windowSize.width > 768) {
+        setCubeSize(0.7);
+      } else {
+        setCubeSize(0.4);
+      }
+    }
+  }, [windowSize.width]);
 
   return (
     <section className="container">
       <section
         style={{
-          transform: "rotateY(" + xdeg + "deg) rotateX(" + ydeg + "deg)"
+          transform: `rotateY(${xdeg}deg) rotateX(${ydeg}deg) scale3d(${cubeSize}, ${cubeSize}, ${cubeSize})`
         }}
         className="cube"
       >
-        <FrontSide foundArtists={handlerFoundArtists} />
-        <BackSide albumTracks={handlerTracksFound} albumlist={albums} />
-        <LeftSide tracks={tracks} />
-        <RightSide onAlbums={handleAlbums} artists={artists} />
+        <FrontSide />
+        <BackSide />
+        <LeftSide />
+        <RightSide />
         <TopSide />
-        <BottomSide playlists={playlists} />
+        <BottomSide />
       </section>
     </section>
   );

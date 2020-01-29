@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import userService from "../../services/userlogic";
-import ErrorMessage from "../errormessage";
+import Message from "../message";
 
 const Register = () => {
   const [message, setMessage] = useState("");
@@ -113,18 +113,12 @@ const Register = () => {
         />
       </div>
 
-      <button type="submit" className="btn btn-primary">
-        Register
-      </button>
-      <button
-        onClick={handleClickLogin}
-        type="button"
-        className="btn btn-primary"
-      >
+      <button type="submit">Register</button>
+      <button onClick={handleClickLogin} type="button">
         Login
       </button>
       {message && <p className="success_message">{message}</p>}
-      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
+      <Message message={errorMessage} clearMessage={clearMessage} />
     </form>
   );
 };

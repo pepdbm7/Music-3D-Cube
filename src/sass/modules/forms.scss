@@ -11,32 +11,8 @@
     border-color: rgb(255, 193, 7);
     outline: 0;
   }
-  & button {
-    background: white;
-    color: rgb(255, 193, 7);
-    border-color: rgb(255, 193, 7);
-    transition: all 1 ease;
-    &:hover,
-    &:focus,
-    &:active {
-      background-color: rgb(255, 193, 7) !important;
-      color: black !important;
-      outline: 0 !important;
-      border: 1px solid goldenrod !important;
-      box-shadow: 0 0 2px 1px white !important;
-    }
-
-    &:focus,
-    &:active {
-      background-color: #e2aa04 !important;
-    }
-
-    &:last-of-type {
-      margin-left: 1em;
-    }
-  }
-  & h2 {
+  & p {
     margin-top: 0.5em;
-    color: #ffc107;
+    color: goldenrod;
   }
 }

@@ -15,12 +15,7 @@ const SideTitle = ({
       <section className="panel-inf__main-section">
         <section className="panel-inf__main-section__img-section">
           {showAddPlayListButton && (
-            <button
-              onClick={handleClickButton}
-              className="btn btn-sm btn-warning"
-            >
-              {messageButton}
-            </button>
+            <button onClick={handleClickButton}>{messageButton}</button>
           )}
         </section>
         <section className="panel-inf__main-section__name-section">

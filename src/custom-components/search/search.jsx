@@ -1,48 +1,74 @@
-import React, { Component } from "react";
+import React, { useState, useContext } from "react";
+import iTunesLogic from "../../services/iTunesLogic";
+import Message from "../message";
+//store:
+import { StoreContext } from "../../store";
 
-export default class Search extends Component {
-  state = { search: "" };
+const Search = () => {
+  const [search, setSearch] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const clearMessage = () => setErrorMessage("");
 
-  handleChange = ev => {
-    this.setState({ search: ev.target.value });
+  const {
+    artists: [, setArtists],
+    albums: [, setAlbums],
+    albumImage: [, setAlbumImage],
+    albumTracks: [, setAlbumTracks]
+  } = useContext(StoreContext);
+
+  const handleChange = ev => {
+    setSearch(ev.target.value);
   };
 
-  handleSearch = ev => {
-    ev.preventDefault();
-
-    this.props.onSearch(this.state.search);
+  const onSearch = e => {
+    e.preventDefault();
+    try {
+      iTunesLogic
+        .getArtists(search)
+        .then(artists => {
+          setArtists(artists);
+          document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
+        })
+        .catch(err => {
+          //captured errors after fetching:
+          setErrorMessage(err.message);
+        });
+    } catch (err) {
+      //captured typerrors, previous to the fetch:
+      setErrorMessage(err.message);
+    }
   };
 
-  handleClearSearch = () => {
-    this.setState({ search: "" });
+  const onClear = () => {
+    setSearch("");
+    setArtists([]);
+    setAlbums([]);
+    setAlbumTracks([]);
+    setAlbumImage("");
   };
 
-  render() {
-    return (
-      <form className="custom-form" onSubmit={this.handleSearch}>
+  return (
+    <>
+      <form className="custom-form" onSubmit={onSearch}>
         <div className="form-group">
           <label htmlFor="exampleInputEmail1">Search Artists</label>
           <input
-            onChange={this.handleChange}
-            value={this.state.search}
+            onChange={handleChange}
+            value={search}
             type="text"
             className="form-control"
-            aria-describedby="emailHelp"
-            placeholder="Search Artists..."
+            placeholder="Write an artist"
             autoFocus
           />
         </div>
-        <button type="submit" className="btn btn-primary">
-          Search Artists
-        </button>
-        <button
-          onClick={this.handleClearSearch}
-          type="button"
-          className="btn btn-primary"
-        >
+        <button type="submit">Search Artists</button>
+        <button onClick={onClear} type="button">
           Clear search
         </button>
       </form>
-    );
-  }
-}
+      <Message message={errorMessage} clearMessage={clearMessage} />
+    </>
+  );
+};
+
+export default Search;

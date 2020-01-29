@@ -1,19 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Header from "../../header/header";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
 import iTunesLogic from "../../../services/iTunesLogic";
-import ErrorMessage from "../../errormessage";
+import Message from "../../message";
+//store:
+import { StoreContext } from "../../../store";
 
-const RightSide = ({ artists, onAlbums }) => {
+const RightSide = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const clearMessage = () => setErrorMessage("");
+
+  const {
+    artists: [artists],
+    albums: [, setAlbums]
+  } = useContext(StoreContext);
 
   const handleAlbums = id => {
     try {
       iTunesLogic
         .getAlbumsByArtistId(id)
-        .then(albums => onAlbums(albums))
+        .then(albums => {
+          setAlbums(albums);
+          document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 39 }));
+        })
         .catch(err => {
           console.log(err.message);
           setErrorMessage(err.message);
@@ -29,7 +39,7 @@ const RightSide = ({ artists, onAlbums }) => {
       <Header />
       <SideTitle title="Artists List" />
       <List onAlbums={handleAlbums} type="albums" list={artists} />
-      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
+      <Message message={errorMessage} clearMessage={clearMessage} />
     </section>
   );
 };

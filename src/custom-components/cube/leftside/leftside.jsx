@@ -3,10 +3,11 @@ import Header from "../../header/header";
 import SideTitle from "../../sidetitle/sidetitle";
 import List from "../../list/list";
 import userService from "../../../services/userlogic";
-import ErrorMessage from "../../errormessage";
+import Message from "../../message";
+//store:
 import { StoreContext } from "../../../store";
 
-const LeftSide = ({ tracks }) => {
+const LeftSide = () => {
   const [currentTrackPlaying, setCurrentTrackPlaying] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -15,7 +16,8 @@ const LeftSide = ({ tracks }) => {
   const {
     playlists: [playlists, setPlaylists],
     isLoggedIn: [isLoggedIn],
-    albumImage: [albumImage]
+    albumImage: [albumImage],
+    albumTracks: [albumTracks]
   } = useContext(StoreContext);
 
   const handlePlayTrack = previewUrl => setCurrentTrackPlaying(previewUrl);
@@ -103,9 +105,9 @@ const LeftSide = ({ tracks }) => {
           onPlayTrack={handlePlayTrack}
           showLink={true}
           type="songs"
-          list={tracks}
+          list={albumTracks}
         />
-        <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
+        <Message message={errorMessage} clearMessage={clearMessage} />
       </div>
     </section>
   );

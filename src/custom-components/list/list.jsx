@@ -57,10 +57,7 @@ const List = ({
                   </div>
                   {type === "playlist" && (
                     <div>
-                      <button
-                        onClick={() => onDeleteClick(item.id)}
-                        className="list__container__item__group__button-delete btn btn-sm btn-dark"
-                      >
+                      <button onClick={() => onDeleteClick(item.id)}>
                         Delete
                       </button>
                     </div>
@@ -70,7 +67,6 @@ const List = ({
                       <button
                         id={`button-${item.id}`}
                         onClick={() => addTrackToPlaylist(item.id)}
-                        className="list__container__item__group__button-delete btn btn-sm btn-dark"
                       >
                         Add To PlayList
                       </button>

@@ -3,14 +3,20 @@ import React, { createContext, useState } from "react";
 export const StoreContext = createContext(null);
 
 export default ({ children }) => {
-  const [playLists, setPlaylists] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [artsists, setArtists] = useState([]);
+  const [albums, setAlbums] = useState([]);
   const [albumImage, setAlbumImage] = useState("");
+  const [albumTracks, setAlbumTracks] = useState([]);
+  const [playLists, setPlaylists] = useState(true);
 
   const store = {
-    playlists: [playLists, setPlaylists],
     isLoggedIn: [isLoggedIn, setIsLoggedIn],
-    albumImage: [albumImage, setAlbumImage]
+    artists: [artsists, setArtists],
+    albums: [albums, setAlbums],
+    albumImage: [albumImage, setAlbumImage],
+    albumTracks: [albumTracks, setAlbumTracks],
+    playlists: [playLists, setPlaylists]
   };
 
   return (

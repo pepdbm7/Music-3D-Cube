@@ -1,6 +1,6 @@
 // const iTunesLogic = require('../services/iTunesLogic')
 // const {User, Playlist, Track} = require('../datalayer/user')
-// let sessionStorage = require('sessionstorage')
+// let localStorage = require('localStorage')
 
 //comentar para testear:
 import data from "../datalayer/user";
@@ -10,7 +10,7 @@ const { User, Track, Playlist } = data;
 
 const userService = {
   getSessionFromStorage() {
-    const user = JSON.parse(sessionStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user"));
     if (user === undefined) throw Error("The user has not session");
     else return user;
   },
@@ -64,7 +64,7 @@ const userService = {
 
         return { id: data.id, token: data.token };
       })
-      .then(data => sessionStorage.setItem("user", JSON.stringify(data)));
+      .then(data => localStorage.setItem("user", JSON.stringify(data)));
   },
 
   getUserInfo(id, token) {
@@ -115,7 +115,7 @@ const userService = {
         return playlist;
       })
       .then(playlist => {
-        const session = JSON.parse(sessionStorage.getItem("user"));
+        const session = JSON.parse(localStorage.getItem("user"));
         if (!session) throw Error("The session of the user has fisnihed");
         const res = {
           id: session.id,
@@ -171,7 +171,7 @@ const userService = {
   },
 
   getUserPlayLists() {
-    const session = JSON.parse(sessionStorage.getItem("user"));
+    const session = JSON.parse(localStorage.getItem("user"));
     if (!session) throw Error("The session of the user has fisnihed");
 
     return this.getUserInfo(session.id, session.token).then(
@@ -180,7 +180,7 @@ const userService = {
   },
 
   deletePlayList(playlistId) {
-    const { id, token } = JSON.parse(sessionStorage.getItem("user"));
+    const { id, token } = JSON.parse(localStorage.getItem("user"));
     if (!id) throw Error("The session of the user has fisnihed");
     return this.getUserInfo(id, token)
       .then(res => {

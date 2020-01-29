@@ -1,14 +1,27 @@
-import React, { useState, useEffect } from "react";
-import ErrorMessage from "../errormessage";
+import React, { useState, useEffect, useContext } from "react";
+import userService from "../../services/userlogic";
+import playListImage from "../../assets/img/playlist.png";
 
-const Login = ({ message, onLogin }) => {
+import Message from "../message";
+
+import { StoreContext } from "../../store";
+
+const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [formValues, setFormValues] = useState({ username: "", password: "" });
   const clearMessage = () => setErrorMessage("");
 
+  const {
+    playlists: [, setPlaylists],
+
+    isLoggedIn: [isLoggedIn, setIsLoggedIn]
+  } = useContext(StoreContext);
+
   useEffect(() => {
-    message && setErrorMessage("Wrong credentials");
-  }, [message]);
+    const isUserInStorage = userService.getSessionFromStorage();
+    setIsLoggedIn(isUserInStorage);
+    getPlaylists(isUserInStorage);
+  }, []);
 
   const handleInputChange = e =>
     setFormValues({
@@ -16,19 +29,58 @@ const Login = ({ message, onLogin }) => {
       [e.target.name]: e.target.value
     });
 
-  const handleSubmit = e => {
+  const handleLogin = e => {
     e.preventDefault();
-    onLogin({ username: formValues.username, password: formValues.password });
+
+    const { username, password } = formValues;
+
+    try {
+      userService
+        .authenticateUser(username, password)
+        .then(() => {
+          setIsLoggedIn(true);
+          getPlaylists(true);
+        })
+        .catch(err => setErrorMessage(err.message));
+    } catch (err) {
+      setErrorMessage(err.message);
+    }
   };
 
-  const handleClickRegister = () => {
+  const getPlaylists = loggedIn => {
+    if (loggedIn) {
+      try {
+        userService
+          .getUserPlayLists()
+          .then(playlists => {
+            if (playlists.length)
+              playlists.map(el => (el.image = playListImage));
+            setPlaylists(playlists);
+            document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
+          })
+          .catch(err => err);
+      } catch (err) {}
+    }
+  };
+
+  const goToRegister = () => {
     setFormValues({ username: "", password: "" });
     document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
     document.dispatchEvent(new KeyboardEvent("keyup", { keyCode: 38 }));
   };
 
-  return (
-    <form className="custom-form" onSubmit={handleSubmit}>
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+  };
+
+  return isLoggedIn ? (
+    <section className="top__seccion-button">
+      {`Welcome ${formValues.username}, enjoy the app!`}
+      <button onClick={handleLogout}>Logout</button>
+    </section>
+  ) : (
+    <form className="custom-form" onSubmit={handleLogin}>
       <div className="form-group">
         <label htmlFor="username">Username</label>
         <input
@@ -36,7 +88,6 @@ const Login = ({ message, onLogin }) => {
           type="text"
           name="username"
           className="form-control"
-          aria-describedby="emailHelp"
           placeholder="Username"
           onChange={handleInputChange}
         />
@@ -48,22 +99,15 @@ const Login = ({ message, onLogin }) => {
           type="password"
           name="password"
           className="form-control"
-          aria-describedby="emailHelp"
           placeholder="Password"
           onChange={handleInputChange}
         />
       </div>
-      <button type="submit" className="btn btn-primary">
-        Login
-      </button>
-      <button
-        onClick={handleClickRegister}
-        type="button"
-        className="btn btn-primary"
-      >
+      <button type="submit">Login</button>
+      <button onClick={goToRegister} type="button">
         Register
       </button>
-      <ErrorMessage message={errorMessage} clearMessage={clearMessage} />
+      <Message message={errorMessage} clearMessage={clearMessage} />
     </form>
   );
 };
