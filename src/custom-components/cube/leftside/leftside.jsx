@@ -23,10 +23,10 @@ const LeftSide = () => {
   const handlePlayTrack = previewUrl => setCurrentTrackPlaying(previewUrl);
 
   const getUserInfo = () => {
-    const session = userService.getSessionFromStorage();
+    const local = userService.getLocalFromStorage();
     try {
       userService
-        .getUserInfo(session.id, session.token)
+        .getUserInfo(local.id, local.token)
         .then(data => {
           return data;
         })

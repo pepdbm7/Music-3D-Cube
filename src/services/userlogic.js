@@ -6,12 +6,13 @@
 import data from "../datalayer/user";
 import iTunesLogic from "../services/iTunesLogic";
 require("isomorphic-fetch");
+const uuidv1 = require("uuid/v1");
 const { User, Track, Playlist } = data;
 
 const userService = {
-  getSessionFromStorage() {
+  getLocalFromStorage() {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user === undefined) throw Error("The user has not session");
+    if (user === undefined) throw Error("The user has not local");
     else return user;
   },
 
@@ -88,6 +89,7 @@ const userService = {
   },
 
   updateUser(id, token, user) {
+    debugger;
     return fetch(`https://skylabcoders.herokuapp.com/api/user/${id}`, {
       method: "PUT",
       headers: {
@@ -95,53 +97,49 @@ const userService = {
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(user)
-    })
-      .then(res => res.json())
-      .then(res => res.status === "OK" && true);
+    }).then(res => {
+      debugger;
+      return res.json();
+    });
+    // .then(res => res.status === "OK" && true);
   },
 
-  createPlayList(value) {
-    if (typeof value !== "string")
-      throw TypeError(`search criteria is not a string`);
-    if (typeof value !== "string") throw TypeError(`search criteria is empty`);
+  createPlayList(playlistName) {
+    if (typeof playlistName !== "string")
+      throw TypeError(`Playlist name is not a string`);
+    if (typeof playlistName !== "string")
+      throw TypeError(`Playlist name is empty`);
+    const local = JSON.parse(localStorage.getItem("user"));
+    if (!local) throw Error("The session of the user has fisnihed");
 
-    return iTunesLogic
-      .createPlaylist(value)
-      .then(res => {
-        let playlist = new Playlist();
-        playlist.Id = res.id;
-        playlist.Name = value;
-        playlist.Image = "playlist.png";
-        return playlist;
-      })
-      .then(playlist => {
-        const session = JSON.parse(localStorage.getItem("user"));
-        if (!session) throw Error("The session of the user has fisnihed");
-        const res = {
-          id: session.id,
-          token: session.token,
-          playlist: playlist
-        };
-        return res;
-      })
-      .then(obj => {
-        return this.getUserInfo(obj.id, obj.token).then(res => {
-          obj.userInf = res;
-          return obj;
-        });
-      })
-      .then(res => {
-        let user = new User();
-        user.playLists = res.userInf.playLists;
-        user.createPlayList(res.playlist);
-        res.userInf = user;
-        return res;
-      })
-      .then(data => {
-        return (
-          this.updateUser(data.id, data.token, data.userInf) &&
-          data.userInf.playLists
+    let playList = new Playlist();
+    playList.Id = uuidv1();
+    playList.Name = playlistName;
+    playList.Image = "whatever.png";
+
+    //retrieve userInfo, and check if already exists playlist:
+    return this.getUserInfo(local.id, local.token)
+      .then(userInfo => {
+        const isNameAlreadyTaken = userInfo.playLists.find(
+          playlist => playlist.name === playList.Name
         );
+        if (isNameAlreadyTaken)
+          throw Error(
+            `A playlist with the name${playList.Name} already exists `
+          );
+        const newInfo = userInfo;
+
+        newInfo.playLists.push(playList);
+        return newInfo;
+      })
+      .then(userInfo => {
+        let newUser = new User();
+        // newUser.Name = userInfo.name;
+        // newUser.Surname = userInfo.surname;
+        // newUser.Email = userInfo.email;
+        // newUser.Username = userInfo.username;
+        newUser.playLists = userInfo.playLists;
+        this.updateUser(local.id, local.token, newUser);
       });
   },
 
@@ -157,8 +155,8 @@ const userService = {
           playList => playList.id === playlistId
         );
         playList.tracks.push(track);
-        const session = this.getSessionFromStorage();
-        return this.updateUser(session.id, session.token, user);
+        const local = this.getLocalFromStorage();
+        return this.updateUser(local.id, local.token, user);
       });
   },
 
@@ -171,12 +169,10 @@ const userService = {
   },
 
   getUserPlayLists() {
-    const session = JSON.parse(localStorage.getItem("user"));
-    if (!session) throw Error("The session of the user has fisnihed");
+    const local = JSON.parse(localStorage.getItem("user"));
+    if (!local) throw Error("The session of the user has fisnished");
 
-    return this.getUserInfo(session.id, session.token).then(
-      res => res.playLists
-    );
+    return this.getUserInfo(local.id, local.token).then(res => res.playLists);
   },
 
   deletePlayList(playlistId) {

@@ -13,12 +13,11 @@ const Login = () => {
 
   const {
     playlists: [, setPlaylists],
-
     isLoggedIn: [isLoggedIn, setIsLoggedIn]
   } = useContext(StoreContext);
 
   useEffect(() => {
-    const isUserInStorage = userService.getSessionFromStorage();
+    const isUserInStorage = userService.getLocalFromStorage();
     setIsLoggedIn(isUserInStorage);
     getPlaylists(isUserInStorage);
   }, []);

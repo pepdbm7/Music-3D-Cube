@@ -51,7 +51,7 @@ const Search = () => {
     <>
       <form className="custom-form" onSubmit={onSearch}>
         <div className="form-group">
-          <label htmlFor="exampleInputEmail1">Search Artists</label>
+          <label>Search Artists</label>
           <input
             onChange={handleChange}
             value={search}

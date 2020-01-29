@@ -38,6 +38,7 @@ const MyPlaylists = () => {
       userService
         .getUserPlayLists()
         .then(playlists => {
+          debugger;
           if (playlists.length) {
             playlists.map(el => (el.image = defaultSongImage));
           }
@@ -49,12 +50,14 @@ const MyPlaylists = () => {
     }
   };
 
-  const handleCreatePlayList = () => {
+  const handleCreatePlayList = e => {
+    e.preventDefault();
     try {
       userService.createPlayList(playListName);
       userService
         .getUserPlayLists()
         .then(res => {
+          debugger;
           res.map(el => (el.image = defaultSongImage));
 
           setButtonText("Add PlayList");
@@ -75,7 +78,6 @@ const MyPlaylists = () => {
     );
     setShowFormAddPlayList(!showFormAddPlayList);
     setErrorMessage("");
-    setShowFormAddPlayList(showFormAddPlayList);
   };
 
   const handleDeleteClick = id => {
@@ -94,12 +96,12 @@ const MyPlaylists = () => {
   };
 
   const handlePlayListClick = id => {
-    const session = userService.getSessionFromStorage();
+    const local = userService.getLocalFromStorage();
     try {
       userService
-        .getUserInfo(session.id, session.token)
-        .then(sessionData => {
-          let user = userService.getUserFromData(sessionData);
+        .getUserInfo(local.id, local.token)
+        .then(localData => {
+          let user = userService.getUserFromData(localData);
           let Playlists = user.Playlists.find(playlist => playlist.id === id);
 
           Playlists.tracks && setTracks(Playlists.tracks);
@@ -113,15 +115,15 @@ const MyPlaylists = () => {
   const handleBackToPlayList = () => setTracks([]);
 
   const handleDeleteTrack = trackId => {
-    const session = userService.getSessionFromStorage();
+    const local = userService.getLocalFromStorage();
     try {
       userService
-        .getUserInfo(session.id, session.token)
+        .getUserInfo(local.id, local.token)
         .then(data => {
           let user = userService.getUserFromData(data);
           user.deleteTrackFromPlayList(trackId);
           userService
-            .updateUser(session.id, session.token, user)
+            .updateUser(local.id, local.token, user)
             .then(_ => setTracks(tracks.filter(track => track.id !== trackId)))
             .catch(err => console.log(err.message));
         })
@@ -156,7 +158,7 @@ const MyPlaylists = () => {
       {showFormAddPlayList && (
         <form className="custom-form" onSubmit={handleCreatePlayList}>
           <div className="form-group">
-            <label htmlFor="exampleInputEmail1">Add Playlist</label>
+            <label>Add Playlist</label>
             <input
               onChange={handleChange}
               type="text"
@@ -164,18 +166,13 @@ const MyPlaylists = () => {
               placeholder="Add PlayList..."
             />
           </div>
-          <button style={{ "margin-left": "0" }} type="submit">
+          <button style={{ marginLeft: "0" }} type="submit">
             Add Playlist
           </button>
-          <Message
-            message={errorMessage}
-            clearMessage={clearMessage}
-            success={success}
-          />
         </form>
       )}
       {tracks.length > 0 && (
-        <div className="">
+        <div>
           <ul className="list playlist-trackList">
             <button onClick={handleBackToPlayList}>Back to PlayList</button>
             {tracks.map(track => (
@@ -191,6 +188,11 @@ const MyPlaylists = () => {
           </ul>
         </div>
       )}
+      <Message
+        message={errorMessage}
+        clearMessage={clearMessage}
+        success={success}
+      />
     </>
   );
 };
